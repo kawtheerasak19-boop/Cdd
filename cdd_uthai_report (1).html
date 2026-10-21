@@ -1,0 +1,2629 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDD Uthai Report | ระบบรายงานประจำเดือน กลุ่มงานสารสนเทศการพัฒนาชุมชน สพจ.อุทัยธานี</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{
+  --navy-900:#1E1B4B; --navy-800:#312E81; --navy-700:#3730A3; --navy-600:#4338CA;
+  --blue-600:#4F46E5; --blue-500:#6366F1; --blue-400:#818CF8; --blue-300:#A5B4FC;
+  --acc-600:#DB2777; --acc-500:#EC4899; --acc-400:#F472B6;
+  --violet:#A855F7; --sky:#0284C7; --teal:#0D9488; --gold:#D97706;
+  --ok:#10B981; --warn:#F59E0B; --danger:#F43F5E; --line-green:#06C755;
+  --r-sm:10px; --r-md:16px; --r-lg:22px; --r-xl:28px; --r-pill:999px;
+  --sb-w:282px;
+  --f:'Noto Sans Thai',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --t:.22s cubic-bezier(.4,0,.2,1);
+}
+html[data-theme="light"]{
+  --bg:#F2F3FC; --bg-2:#E9EBFA;
+  --surface:#FFFFFF; --surface-2:#F8F8FE; --surface-3:#F0F1FC;
+  --ink:#151338; --ink-2:#3A3B6B; --muted:#6E729B; --faint:#9DA1C6;
+  --line:#E9EAF8; --line-2:#DADCF2;
+  --sb-a:#221B54; --sb-b:#4C1D95; --sb-ink:#E6E6FB; --sb-muted:#A9ABDD;
+  --shadow:0 6px 26px rgba(37,30,90,.07),0 1px 2px rgba(37,30,90,.05);
+  --shadow-lg:0 26px 60px rgba(37,30,90,.18);
+  --glass:rgba(255,255,255,.85);
+}
+html[data-theme="dark"]{
+  --bg:#08071C; --bg-2:#0D0B29;
+  --surface:#15142F; --surface-2:#1C1B3F; --surface-3:#25234C;
+  --ink:#EDEDFC; --ink-2:#C6C7EE; --muted:#9296C8; --faint:#6C70A2;
+  --line:#2A2856; --line-2:#37356C;
+  --sb-a:#0A0824; --sb-b:#3B1173; --sb-ink:#E6E6FB; --sb-muted:#A0A3D8;
+  --shadow:0 6px 26px rgba(0,0,0,.46);
+  --shadow-lg:0 26px 60px rgba(0,0,0,.65);
+  --glass:rgba(21,20,47,.88);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--f); background:var(--bg); color:var(--ink);
+  font-size:14.5px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(1000px 560px at 92% -6%,rgba(236,72,153,.13),transparent 62%),
+                   radial-gradient(900px 520px at 2% 2%,rgba(99,102,241,.15),transparent 60%);
+  background-attachment:fixed;
+  transition:background-color var(--t),color var(--t);
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+a{color:inherit;text-decoration:none}
+
+/* ====== LOGIN SCREEN ====== */
+.login-screen{
+  position:fixed; inset:0; z-index:500; display:grid; place-items:center; padding:20px;
+  background:linear-gradient(135deg,#1E1B4B 0%,#312E81 45%,#4C1D95 100%);
+  overflow-y:auto;
+}
+.login-screen.hidden{display:none!important}
+.login-card{
+  background:var(--surface); color:var(--ink); width:100%; max-width:450px;
+  border-radius:var(--r-xl); padding:36px 32px; box-shadow:0 30px 70px rgba(0,0,0,.45);
+  border:1px solid var(--line); position:relative; overflow:hidden;
+}
+.login-badge{
+  display:inline-flex; align-items:center; gap:6px; padding:5px 13px; border-radius:var(--r-pill);
+  background:var(--surface-3); color:var(--blue-600); font-size:12px; font-weight:700; margin-bottom:14px;
+}
+.login-card h2{font-size:21px; font-weight:800; line-height:1.3; margin-bottom:4px}
+.login-card p.sub{font-size:13px; color:var(--muted); margin-bottom:22px}
+.form-group{margin-bottom:14px; text-align:left}
+.form-group label{display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:var(--ink-2)}
+.inp{
+  width:100%; padding:10px 14px; border-radius:12px; border:1.5px solid var(--line-2);
+  background:var(--surface-2); font-size:14px; transition:var(--t);
+}
+.inp:focus{outline:none; border-color:var(--blue-500); background:var(--surface); box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+.login-err{
+  background:rgba(244,63,94,.1); border:1px solid rgba(244,63,94,.3); color:var(--danger);
+  padding:9px 12px; border-radius:10px; font-size:13px; font-weight:600; margin-bottom:14px; display:none;
+}
+
+/* ====== APP SHELL ====== */
+.app{display:flex; min-height:100vh}
+.sidebar{
+  width:var(--sb-w); flex:0 0 var(--sb-w); position:sticky; top:0; height:100vh; z-index:60;
+  background:linear-gradient(165deg,var(--sb-a) 0%,var(--sb-b) 52%,var(--sb-a) 100%);
+  display:flex; flex-direction:column; overflow:hidden; box-shadow:6px 0 28px rgba(4,14,32,.22);
+}
+.brand{display:flex; align-items:center; gap:12px; padding:20px 18px 16px; border-bottom:1px solid rgba(255,255,255,.1)}
+.brand-ic{
+  width:44px; height:44px; border-radius:14px; flex:none; display:grid; place-items:center;
+  background:linear-gradient(135deg,#6366F1,#EC4899); color:#fff; font-weight:800; font-size:16px;
+  box-shadow:0 8px 18px rgba(236,72,153,.35);
+}
+.brand-name{font-size:16.5px; font-weight:800; color:#fff; line-height:1.2}
+.brand-name b{color:var(--acc-400)}
+.brand-sub{font-size:11.5px; color:var(--sb-muted); line-height:1.35; margin-top:2px}
+.user-box{
+  margin:12px 12px 6px; padding:11px 13px; border-radius:14px;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1); color:#fff;
+}
+.user-box .u-role{font-size:11px; color:var(--acc-400); font-weight:700; text-transform:uppercase; letter-spacing:.4px}
+.user-box .u-name{font-size:13.5px; font-weight:700; margin-top:2px}
+.nav{flex:1; overflow-y:auto; padding:6px 11px 14px}
+.nav-label{font-size:11px; color:var(--sb-muted); padding:12px 10px 5px; font-weight:600; letter-spacing:.4px}
+.nav-item{
+  display:flex; align-items:center; gap:10px; width:100%; padding:10px 12px; border-radius:12px;
+  color:var(--sb-ink); font-size:13.5px; font-weight:500; text-align:left; margin-bottom:3px; transition:var(--t);
+}
+.nav-item:hover{background:rgba(255,255,255,.1)}
+.nav-item.active{
+  background:linear-gradient(94deg,var(--blue-500),var(--acc-500)); color:#fff; font-weight:700;
+  box-shadow:0 8px 20px rgba(236,72,153,.32);
+}
+.nav-item .b-cnt{
+  margin-left:auto; background:rgba(255,255,255,.18); padding:1px 8px; border-radius:20px; font-size:11px; font-weight:700;
+}
+.sb-foot{padding:12px; border-top:1px solid rgba(255,255,255,.1)}
+.btn-logout{
+  width:100%; padding:10px; border-radius:12px; background:rgba(244,63,94,.22); color:#FECDD3;
+  font-weight:700; font-size:13.5px; display:flex; align-items:center; justify-content:center; gap:8px; transition:var(--t);
+}
+.btn-logout:hover{background:var(--danger); color:#fff}
+
+/* ====== MAIN & TOPBAR ====== */
+.main{flex:1; min-width:0; display:flex; flex-direction:column}
+.topbar{
+  position:sticky; top:0; z-index:45; background:var(--glass); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line); padding:13px 22px;
+}
+.tb-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.tb-title h1{font-size:19px; font-weight:800; line-height:1.25}
+.tb-title p{font-size:12px; color:var(--muted)}
+.tb-spacer{flex:1}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:9px 16px;
+  border-radius:var(--r-pill); font-weight:600; font-size:13.5px; transition:var(--t); border:1px solid transparent; white-space:nowrap;
+}
+.btn:disabled{opacity:.55; cursor:not-allowed}
+.btn-primary{background:linear-gradient(96deg,var(--blue-500),var(--acc-500)); color:#fff; box-shadow:0 8px 20px rgba(236,72,153,.28)}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px)}
+.btn-ok{background:linear-gradient(96deg,#059669,#10B981); color:#fff}
+.btn-sky{background:linear-gradient(96deg,#0284C7,#2563EB); color:#fff; box-shadow:0 5px 14px rgba(37,99,235,.26)}
+.btn-line{background:linear-gradient(96deg,#059669,#06C755); color:#fff; box-shadow:0 6px 16px rgba(6,199,85,.28)}
+.btn-warn{background:linear-gradient(96deg,#D97706,#F59E0B); color:#fff}
+.btn-danger{background:linear-gradient(96deg,#E11D48,#F43F5E); color:#fff}
+.btn-ghost{background:var(--surface-2); border-color:var(--line-2); color:var(--ink-2)}
+.btn-ghost:hover:not(:disabled){background:var(--surface-3)}
+.btn-sm{padding:7px 13px; font-size:12.5px}
+.btn-xs{padding:4px 9px; font-size:11.5px; border-radius:8px}
+
+/* Month Bar */
+.month-bar{display:flex; gap:5px; overflow-x:auto; padding-top:11px; margin-top:11px; border-top:1px solid var(--line)}
+.m-btn{
+  padding:5px 12px; border-radius:var(--r-pill); font-size:12.5px; font-weight:600; color:var(--muted);
+  background:var(--surface-2); border:1px solid var(--line); white-space:nowrap; transition:var(--t);
+}
+.m-btn:hover{border-color:var(--blue-400); color:var(--ink)}
+.m-btn.active{background:var(--blue-600); color:#fff; border-color:var(--blue-600); box-shadow:0 4px 12px rgba(79,70,229,.3)}
+
+/* ====== CONTENT & CARDS ====== */
+.content{padding:20px 22px; flex:1}
+.page{display:none}
+.page.active{display:block; animation:fadeIn .22s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.kpis{display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); margin-bottom:18px}
+.kpi{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:17px 18px;
+  box-shadow:var(--shadow); position:relative; overflow:hidden;
+}
+.kpi.hero{background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 50%,#DB2777 100%); color:#fff; border:none}
+.kpi-lb{font-size:12.5px; color:var(--muted); font-weight:600}
+.kpi.hero .kpi-lb,.kpi.hero .kpi-sub{color:rgba(255,255,255,.85)}
+.kpi-val{font-size:26px; font-weight:800; margin-top:4px; line-height:1.15}
+.kpi-sub{font-size:11.5px; color:var(--faint); margin-top:5px}
+.kpi-bar{height:6px; border-radius:var(--r-pill); background:var(--surface-3); margin-top:10px; overflow:hidden}
+.kpi.hero .kpi-bar{background:rgba(255,255,255,.24)}
+.kpi-bar i{display:block; height:100%; border-radius:var(--r-pill); background:linear-gradient(90deg,var(--blue-500),var(--acc-500))}
+.kpi.hero .kpi-bar i{background:#fff}
+
+.grid{display:grid; gap:16px; grid-template-columns:repeat(12,1fr); margin-bottom:16px}
+.c4{grid-column:span 4} .c5{grid-column:span 5} .c6{grid-column:span 6}
+.c7{grid-column:span 7} .c8{grid-column:span 8} .c12{grid-column:span 12}
+@media(max-width:1024px){
+  .c4,.c5,.c6,.c7,.c8{grid-column:span 12}
+  .app{flex-direction:column}
+  .sidebar{width:100%; flex:none; height:auto; position:relative}
+}
+
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:18px 20px;
+  box-shadow:var(--shadow); margin-bottom:16px;
+}
+.card-h{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap}
+.card-h h3{font-size:15.5px; font-weight:800}
+.card-h p{font-size:12px; color:var(--muted)}
+
+/* Sub-tabs */
+.subtabs{display:flex; gap:6px; flex-wrap:wrap; background:var(--surface-2); padding:6px; border-radius:14px; border:1px solid var(--line); margin-bottom:14px}
+.stab{padding:7px 14px; border-radius:10px; font-size:13px; font-weight:600; color:var(--muted); transition:var(--t)}
+.stab.active{background:var(--surface); color:var(--blue-600); box-shadow:var(--shadow); font-weight:700}
+
+/* Tables */
+.tbl-wrap{overflow-x:auto; border-radius:var(--r-md); border:1px solid var(--line)}
+table{width:100%; border-collapse:collapse; font-size:13px}
+thead th{
+  background:var(--surface-3); padding:10px 12px; text-align:left; font-weight:700; color:var(--ink-2);
+  border-bottom:1px solid var(--line); white-space:nowrap;
+}
+tbody td{padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:middle}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr.row-hidden{opacity:0.55; background:var(--surface-2)}
+.num{text-align:right; font-variant-numeric:tabular-nums}
+.center{text-align:center}
+
+/* Pills */
+.pill{display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:var(--r-pill); font-size:11.5px; font-weight:700; white-space:nowrap}
+.pill-ok{background:rgba(16,185,129,.14); color:#059669}
+.pill-pend{background:rgba(245,158,11,.15); color:#D97706}
+.pill-none{background:var(--surface-3); color:var(--muted)}
+.pill-rej{background:rgba(244,63,94,.14); color:#E11D48}
+.pill-hide{background:rgba(100,116,139,.18); color:var(--muted)}
+
+/* Manual Score Buttons */
+.sc-grp{display:inline-flex; gap:3px; background:var(--surface-3); padding:2px; border-radius:8px}
+.sc-btn{
+  width:26px; height:24px; border-radius:6px; font-size:11.5px; font-weight:800;
+  display:grid; place-items:center; color:var(--muted); transition:var(--t);
+}
+.sc-btn:hover{background:var(--surface); color:var(--ink)}
+.sc-btn.on-2{background:var(--ok); color:#fff}
+.sc-btn.on-1{background:var(--warn); color:#fff}
+.sc-btn.on-0{background:var(--danger); color:#fff}
+
+/* Toggle Switch for Report Active/Hidden */
+.tgl-btn{
+  display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:var(--r-pill);
+  font-size:12px; font-weight:700; transition:var(--t); border:1px solid transparent;
+}
+.tgl-btn.on{background:rgba(16,185,129,.15); color:#059669; border-color:rgba(16,185,129,.35)}
+.tgl-btn.off{background:rgba(244,63,94,.12); color:var(--danger); border-color:rgba(244,63,94,.3)}
+
+/* Month Grid Checkboxes */
+.m-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(105px,1fr)); gap:6px; margin-top:8px}
+.m-chip{
+  display:flex; align-items:center; justify-content:space-between; gap:6px;
+  padding:6px 10px; border-radius:10px; font-size:12px; font-weight:600; cursor:pointer;
+  border:1px solid var(--line-2); background:var(--surface-2); transition:var(--t);
+}
+.m-chip.active-m{background:rgba(16,185,129,.12); border-color:#10B981; color:#059669}
+.m-chip.hidden-m{background:rgba(244,63,94,.08); border-color:rgba(244,63,94,.3); color:var(--danger); text-decoration:line-through}
+
+/* File Upload Box inside Modal */
+.file-upload-box{
+  border:2px dashed var(--blue-400); border-radius:14px; padding:14px;
+  background:var(--surface-2); text-align:center; transition:var(--t); cursor:pointer;
+}
+.file-upload-box:hover{background:var(--surface-3); border-color:var(--blue-600)}
+.file-meta{
+  margin-top:8px; padding:8px 12px; border-radius:10px; background:var(--surface-3);
+  font-size:12.5px; display:none; align-items:center; justify-content:space-between; gap:8px;
+}
+.file-meta.show{display:flex}
+
+/* Upload Dropzone */
+.drop{
+  border:2px dashed var(--line-2); border-radius:var(--r-xl); padding:32px 20px; text-align:center;
+  background:var(--surface-2); cursor:pointer; transition:var(--t);
+}
+.drop:hover{border-color:var(--blue-500); background:var(--surface-3)}
+.note{
+  background:var(--surface-2); border-left:4px solid var(--blue-500); border-radius:0 12px 12px 0;
+  padding:12px 15px; font-size:13px; color:var(--ink-2); margin-top:12px;
+}
+.note.lock{border-left-color:var(--acc-600); background:rgba(219,39,119,.06)}
+
+/* Modal */
+.ov{
+  position:fixed; inset:0; background:rgba(10,12,34,.62); backdrop-filter:blur(4px); z-index:400;
+  display:none; place-items:center; padding:18px;
+}
+.ov.on{display:grid}
+.modal{
+  background:var(--surface); border-radius:var(--r-xl); width:100%; max-width:600px;
+  max-height:92vh; overflow-y:auto; box-shadow:var(--shadow-lg); border:1px solid var(--line);
+}
+.modal-h{display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--line)}
+.modal-h h3{font-size:17px; font-weight:800}
+.modal-b{padding:20px 22px}
+
+/* Toast */
+.toast{
+  position:fixed; bottom:22px; left:50%; transform:translate(-50%,120%); z-index:700;
+  background:var(--navy-900); color:#fff; padding:12px 20px; border-radius:14px; font-weight:600;
+  box-shadow:var(--shadow-lg); transition:var(--t); opacity:0; pointer-events:none;
+}
+.toast.on{transform:translate(-50%,0); opacity:1}
+.admin-only-hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-badge">🔒 CDD Uthai Report • สพจ.อุทัยธานี</div>
+    <h2>เข้าสู่ระบบ CDD Uthai Report</h2>
+    <p class="sub">ระบบติดตามและประเมินผลการส่งรายงานประจำเดือน สำนักงานพัฒนาชุมชนจังหวัดอุทัยธานี</p>
+    <div class="login-err" id="loginErr">ชื่อผู้ใช้งาน หรือ รหัสผ่าน ไม่ถูกต้อง</div>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label for="loginUser">ชื่อผู้ใช้งาน (Username)</label>
+        <input type="text" id="loginUser" class="inp" placeholder="กรอกรหัสผู้ใช้งาน (เช่น Admin หรือ UTI01)" required autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label for="loginPass">รหัสผ่าน (Password)</label>
+        <input type="password" id="loginPass" class="inp" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:12px;margin-top:6px;font-size:15px">
+        เข้าสู่ระบบ
+      </button>
+    </form>
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);text-align:center">
+      สงวนสิทธิ์เฉพาะเจ้าหน้าที่พัฒนาชุมชนจังหวัดอุทัยธานี (รหัสผ่านถูกเก็บรักษาเป็นความลับ)
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MAIN APP ==================== -->
+<div class="app" id="appShell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-ic">พช</div>
+      <div>
+        <div class="brand-name">CDD <b>Uthai Report</b></div>
+        <div class="brand-sub">กลุ่มงานสารสนเทศการพัฒนาชุมชน<br>สพจ.อุทัยธานี</div>
+      </div>
+    </div>
+
+    <div class="user-box">
+      <div class="u-role" id="uRoleTxt">ผู้ใช้งาน</div>
+      <div class="u-name" id="uNameTxt">-</div>
+    </div>
+
+    <nav class="nav" id="sideNav">
+      <div class="nav-label">แดชบอร์ด & ติดตามผล</div>
+      <button class="nav-item active" data-page="overview" onclick="switchPage('overview')">
+        <span>📊 ภาพรวมประจำเดือน</span>
+      </button>
+      <button class="nav-item" data-page="annual" onclick="switchPage('annual')">
+        <span>📅 แดชบอร์ดรายเดือน (ม.ค.–ธ.ค.)</span>
+      </button>
+      <button class="nav-item" data-page="approval" id="navApproval" onclick="switchPage('approval')">
+        <span>✅ อนุมัติการส่งงาน & ให้คะแนน</span>
+        <span class="b-cnt" id="badgePend">0</span>
+      </button>
+      <button class="nav-item" data-page="line" id="navLine" onclick="switchPage('line')">
+        <span>💬 แจ้งเตือน LINE (หลังอนุมัติ)</span>
+      </button>
+
+      <div class="nav-label">เมนูหลัก 4 กลุ่มงาน (ส่งรายงาน)</div>
+      <button class="nav-item" data-page="G1" onclick="switchPage('G1')">
+        <span>1. กลุ่มงานประสานฯ</span>
+        <span class="b-cnt" id="navCnt-G1">5 งาน</span>
+      </button>
+      <button class="nav-item" data-page="G2" onclick="switchPage('G2')">
+        <span>2. กลุ่มงานส่งเสริมฯ</span>
+        <span class="b-cnt" id="navCnt-G2">9 งาน</span>
+      </button>
+      <button class="nav-item" data-page="G3" onclick="switchPage('G3')">
+        <span>3. กลุ่มงานสารสนเทศฯ</span>
+        <span class="b-cnt" id="navCnt-G3">7 งาน</span>
+      </button>
+      <button class="nav-item" data-page="G4" onclick="switchPage('G4')">
+        <span>4. กลุ่มงานยุทธศาสตร์ฯ</span>
+        <span class="b-cnt" id="navCnt-G4">4 งาน</span>
+      </button>
+
+      <div class="nav-label" id="navDataLabel">จัดการข้อมูล (เฉพาะ Admin)</div>
+      <button class="nav-item" data-page="manage-reports" id="navManageReports" onclick="switchPage('manage-reports')">
+        <span>🗂️ จัดการหัวข้อรายงาน & ซ่อนรายเดือน</span>
+      </button>
+      <button class="nav-item" data-page="excel" id="navExcel" onclick="switchPage('excel')">
+        <span>📥 นำเข้าข้อมูลด้วย Excel</span>
+      </button>
+      <button class="nav-item" data-page="settings" onclick="switchPage('settings')">
+        <span>⚙️ ตั้งค่า & เชื่อมต่อระบบ</span>
+      </button>
+    </nav>
+
+    <div class="sb-foot">
+      <button class="btn-logout" onclick="handleLogout()">🚪 ออกจากระบบ</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="tb-row">
+        <div class="tb-title">
+          <h1 id="pageTitle">CDD Uthai Report — ระบบรายงานประจำเดือน</h1>
+          <p id="pageSub">กลุ่มงานสารสนเทศการพัฒนาชุมชน สำนักงานพัฒนาชุมชนจังหวัดอุทัยธานี</p>
+        </div>
+        <div class="tb-spacer"></div>
+        <button class="btn btn-sky btn-sm" id="btnTopManageRep" onclick="switchPage('manage-reports')">
+          ➕ เพิ่ม/ซ่อนหัวข้อรายงาน
+        </button>
+        <button class="btn btn-primary btn-sm" id="btnTopExcel" onclick="switchPage('excel')">
+          📥 นำเข้า Excel
+        </button>
+        <button class="btn btn-danger btn-sm" id="btnTopReset" onclick="requestResetData()">
+          🔄 รีเซ็ตข้อมูลเริ่มต้น
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" id="btnTheme">🌙 โหมดมืด</button>
+      </div>
+
+      <div class="month-bar" id="monthBar"></div>
+    </header>
+
+    <main class="content">
+      <!-- ==================== PAGE: OVERVIEW ==================== -->
+      <section class="page active" id="page-overview">
+        <div class="kpis" id="overviewKpis"></div>
+
+        <div class="grid">
+          <div class="card c8" style="margin-bottom:0">
+            <div class="card-h">
+              <div>
+                <h3>กราฟเปรียบเทียบคะแนนการส่งรายงานรายอำเภอ (<span class="cur-month-lbl"></span>)</h3>
+                <p id="overviewChartSub">เกณฑ์คะแนน: 1 รายงาน = 2 คะแนน (คำนวณเฉพาะรายงานที่เปิดใช้งานในเดือนนี้)</p>
+              </div>
+            </div>
+            <div id="chartDistrictBar"></div>
+          </div>
+
+          <div class="card c4" style="margin-bottom:0">
+            <div class="card-h">
+              <div>
+                <h3>สัดส่วนสถานะการส่งงาน</h3>
+                <p>ประจำเดือน<span class="cur-month-lbl"></span> (เฉพาะรายงานที่ต้องส่ง)</p>
+              </div>
+            </div>
+            <div id="chartStatusDonut"></div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card c7" style="margin-bottom:0">
+            <div class="card-h">
+              <div>
+                <h3>ตารางสรุปผลการส่งรายงานและคะแนนรายอำเภอ (<span class="cur-month-lbl"></span>)</h3>
+                <p>เริ่มต้นเดือนใหม่ที่ 0 งาน — คำนวณเฉพาะหัวข้อที่เปิดให้ส่งในเดือนนี้</p>
+              </div>
+            </div>
+            <div class="tbl-wrap" id="overviewDistrictTable"></div>
+          </div>
+          <div class="card c5" style="margin-bottom:0">
+            <div class="card-h">
+              <div>
+                <h3>ความคืบหน้าแยกตาม 4 กลุ่มงานหลัก</h3>
+                <p>คลิกที่กลุ่มงานเพื่อเข้าสู่หน้าตารางส่งรายงานและอัปโหลดไฟล์</p>
+              </div>
+            </div>
+            <div class="tbl-wrap" id="overviewGroupTable"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PAGE: ANNUAL (JAN - DEC) ==================== -->
+      <section class="page" id="page-annual">
+        <div class="card">
+          <div class="card-h">
+            <div>
+              <h3>แดชบอร์ดสรุปคะแนนการส่งงานรายเดือน (มกราคม – ธันวาคม)</h3>
+              <p>ติดตามความก้าวหน้าและคะแนนสะสมรายเดือนของทั้ง 8 อำเภอ (คำนวณตามหัวข้อที่เปิดส่งจริงในแต่ละเดือน)</p>
+            </div>
+            <button class="btn btn-ok btn-sm" onclick="exportCurrentToExcel()">📤 ส่งออก Excel (.xlsx)</button>
+          </div>
+          <div class="tbl-wrap" id="annualTableWrap"></div>
+        </div>
+      </section>
+
+      <!-- ==================== PAGE: APPROVAL & MANUAL SCORING ==================== -->
+      <section class="page" id="page-approval">
+        <div class="card">
+          <div class="card-h">
+            <div>
+              <h3>ระบบอนุมัติการส่งงาน, ดาวน์โหลดไฟล์งาน & ให้คะแนนแบบแมนนวล (Manual)</h3>
+              <p>แอดมินจังหวัดสามารถดาวน์โหลดไฟล์ที่อำเภอส่งมา ตรวจอนุมัติ และให้คะแนนโดยตรงได้ทุกอำเภอ</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap" id="adminBulkActions">
+              <button class="btn btn-sky btn-sm" onclick="openQuickAddReportModal('ALL')">➕ เพิ่มหัวข้อรายงานใหม่</button>
+              <button class="btn btn-ok btn-sm" onclick="approveAllPendingInFilter()">✅ อนุมัติรายการรอตรวจทั้งหมด</button>
+            </div>
+          </div>
+
+          <div class="subtabs" id="approvalGroupTabs"></div>
+
+          <div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:16px">
+            <div>
+              <label style="font-size:12px;font-weight:700;color:var(--muted)">เลือกเดือน (ม.ค. – ธ.ค.)</label>
+              <select class="inp" id="apFilterMonth" onchange="onApprovalMonthChange()"></select>
+            </div>
+            <div>
+              <label style="font-size:12px;font-weight:700;color:var(--muted)">เลือกเฉพาะงาน / หัวข้อรายงาน</label>
+              <select class="inp" id="apFilterReport" onchange="renderApprovalPage()"></select>
+            </div>
+            <div>
+              <label style="font-size:12px;font-weight:700;color:var(--muted)">เลือกอำเภอ</label>
+              <select class="inp" id="apFilterDist" onchange="renderApprovalPage()"></select>
+            </div>
+            <div>
+              <label style="font-size:12px;font-weight:700;color:var(--muted)">สถานะ</label>
+              <select class="inp" id="apFilterStatus" onchange="renderApprovalPage()">
+                <option value="ALL">-- ทุกสถานะ --</option>
+                <option value="รอตรวจสอบ">⏳ รอตรวจสอบ (ส่งแล้ว)</option>
+                <option value="อนุมัติแล้ว">✅ อนุมัติแล้ว (ได้คะแนน)</option>
+                <option value="ยังไม่ส่งรายงาน">⚪ ยังไม่ส่งรายงาน</option>
+                <option value="แก้ไข">⚠️ แจ้งแก้ไข</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-bottom:20px">
+            <h4 style="font-size:14px;font-weight:800;margin-bottom:8px;color:var(--blue-600)">
+              📋 ตารางให้คะแนนแบบแมนนวล (แยกตามกลุ่มงาน × 8 อำเภอ) — คลิกปุ่ม 2 / 1 / 0 เพื่อให้คะแนนว่าส่งแล้วได้ทันที
+            </h4>
+            <div class="tbl-wrap" id="approvalMatrixWrap"></div>
+          </div>
+
+          <div>
+            <h4 style="font-size:14px;font-weight:800;margin-bottom:8px">
+              📑 ตารางตรวจสอบ, ดาวน์โหลดไฟล์งานจาก Google Drive และอนุมัติการส่งรายงาน
+            </h4>
+            <div class="tbl-wrap" id="approvalListWrap"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PAGE: MANAGE REPORTS & MONTHLY VISIBILITY (ADMIN ONLY) ==================== -->
+      <section class="page" id="page-manage-reports">
+        <div class="grid">
+          <!-- ฟอร์มเพิ่มหัวข้อรายงานใหม่ -->
+          <div class="card c4" style="margin-bottom:0">
+            <div class="card-h">
+              <div>
+                <h3>➕ เพิ่มหัวข้อรายงานใหม่ (4 กลุ่มงาน)</h3>
+                <p>แอดมินสามารถเพิ่มหัวข้อการส่งงานเพิ่มเติมได้ตลอดเวลา</p>
+              </div>
+            </div>
+            <form onsubmit="handleAddNewReport(event)">
+              <div class="form-group">
+                <label>เลือกกลุ่มงานหลัก (1 ใน 4 กลุ่มงาน)</label>
+                <select id="newRepGroup" class="inp" required>
+                  <option value="G1">1. กลุ่มงานประสานและสนับสนุนฯ</option>
+                  <option value="G2">2. กลุ่มงานส่งเสริมการพัฒนาชุมชน</option>
+                  <option value="G3">3. กลุ่มงานสารสนเทศการพัฒนาชุมชน</option>
+                  <option value="G4">4. กลุ่มงานยุทธศาสตร์การพัฒนาชุมชน</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>ชื่อหัวข้อการรายงาน</label>
+                <textarea id="newRepName" class="inp" rows="3" placeholder="เช่น 6. รายงานผลการดำเนินงานโครงการพิเศษ..." required></textarea>
+              </div>
+              <div class="form-group">
+                <label>การเปิดใช้งานรายเดือนเริ่มต้น</label>
+                <select id="newRepScope" class="inp">
+                  <option value="ALL_MONTHS">📅 เปิดให้ส่งทุกเดือน (ม.ค. – ธ.ค.)</option>
+                  <option value="FROM_CURRENT">⏩ เปิดเฉพาะตั้งแต่เดือนที่เลือกปัจจุบันเป็นต้นไป</option>
+                  <option value="ONLY_CURRENT">📌 เปิดเฉพาะเดือนที่เลือกปัจจุบันเท่านั้น</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width:100%;padding:11px">
+                ➕ บันทึกเพิ่มหัวข้อรายงาน
+              </button>
+            </form>
+
+            <div class="note" style="margin-top:16px">
+              <b>💡 คำแนะนำสำหรับแอดมิน:</b><br>
+              • เดือนไหนที่<b>ไม่ต้องส่งรายงานบางตัว</b> สามารถกดปุ่ม <b>"ซ่อน/งดส่งเดือนนี้"</b> ในตารางด้านขวาได้ทันที<br>
+              • รายงานที่ถูกซ่อนในเดือนนั้นจะไม่ถูกนำมาคิดคะแนนเต็มของเดือนนั้น และอำเภอจะไม่ต้องส่งงานนั้นในเดือนดังกล่าว
+            </div>
+          </div>
+
+          <!-- ตารางตั้งค่าเปิด-ปิด (ซ่อน) รายงานประจำเดือน -->
+          <div class="card c8" style="margin-bottom:0">
+            <div class="card-h">
+              <div>
+                <h3>🗂️ จัดการหัวข้อรายงาน & ซ่อนรายงานประจำเดือน (<span class="cur-month-lbl" style="color:var(--blue-600)"></span>)</h3>
+                <p>เลือกเดือนด้านบน หรือใช้ตัวคัดลอกตั้งค่าจากเดือนก่อนหน้า เพื่อกำหนดว่าเดือนไหนต้องส่งหรือไม่ต้องส่งงานใดบ้าง</p>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn btn-ghost btn-xs" onclick="copyVisibilityFromPrevMonth()">📋 คัดลอกการเปิด/ซ่อนจากเดือนก่อนหน้า</button>
+                <button class="btn btn-ok btn-xs" onclick="setAllReportsVisibilityForMonth(currentMonth, true)">👁️ เปิดส่งทุกงานในเดือนนี้</button>
+              </div>
+            </div>
+
+            <div class="subtabs" id="manageRepGroupTabs"></div>
+
+            <div class="tbl-wrap" id="manageReportsTableWrap"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PAGE: LINE NOTIFICATION (ADMIN ONLY) ==================== -->
+      <section class="page" id="page-line">
+        <div class="grid">
+          <div class="card c5" style="margin-bottom:0">
+            <div class="card-h">
+              <div>
+                <h3>➕ เพิ่มและจัดการไอดีไลน์ (LINE ID / Group ID)</h3>
+                <p>กำหนดไอดีไลน์สำหรับรับแจ้งเตือน (ระบุเพิ่มเติมภายหลังได้ตลอดเวลา)</p>
+              </div>
+            </div>
+            <form onsubmit="addLineRecipient(event)" style="margin-bottom:14px">
+              <div class="form-group">
+                <label>ชื่อผู้รับ / ชื่อกลุ่มไลน์</label>
+                <input type="text" id="lineRecName" class="inp" placeholder="เช่น กลุ่มสารสนเทศ สพจ.อน. / จนท.อ.เมือง" required>
+              </div>
+              <div class="form-group">
+                <label>LINE ID / User ID (U...) / Group ID (C...)</label>
+                <input type="text" id="lineRecId" class="inp" placeholder="ระบุไอดีไลน์ หรือ รหัสกลุ่ม" required>
+              </div>
+              <div class="form-group">
+                <label>ผูกกับอำเภอ</label>
+                <select id="lineRecDist" class="inp"></select>
+              </div>
+              <button type="submit" class="btn btn-line" style="width:100%">+ บันทึกไอดีไลน์</button>
+            </form>
+            <div class="tbl-wrap" id="lineRecipientTable"></div>
+          </div>
+
+          <div class="card c7" style="margin-bottom:0">
+            <div class="card-h">
+              <div>
+                <h3>📢 แจ้งเตือนทาง LINE ภายหลังจากอนุมัติรายงาน (เฉพาะ Admin)</h3>
+                <p>ส่งแจ้งเตือนเข้า LINE อัตโนมัติผ่าน Google Apps Script หรือแชร์ผ่านแอป LINE ทันที</p>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn btn-line btn-sm" onclick="sendMonthlySummaryLine()">📲 ส่งสรุปผลการอนุมัติเดือนนี้เข้า LINE</button>
+              </div>
+            </div>
+            <div class="tbl-wrap" id="approvedForLineTable"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PAGE: WORKGROUPS (G1 - G4) ==================== -->
+      <section class="page" id="page-workgroup">
+        <div class="card">
+          <div class="card-h">
+            <div>
+              <h3 id="wgTitle">กลุ่มงาน</h3>
+              <p id="wgSub">ตารางส่งรายงานประจำเดือน อัปโหลดไฟล์เข้า Google Drive แยกตามกลุ่มงาน (ไม่เกิน 5 MB) และดาวน์โหลดไฟล์สำหรับ Admin</p>
+            </div>
+            <div id="wgAdminControls" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"></div>
+          </div>
+          <div class="tbl-wrap" id="wgTableWrap"></div>
+        </div>
+      </section>
+
+      <!-- ==================== PAGE: EXCEL IMPORT / EXPORT (ADMIN ONLY + PIN 02102542) ==================== -->
+      <section class="page" id="page-excel">
+        <div class="card">
+          <div class="card-h">
+            <div>
+              <h3>📥 นำเข้าข้อมูลการส่งรายงานประจำเดือนด้วย Excel / Google Sheets</h3>
+              <p>เฉพาะแอดมินระดับจังหวัด (Admin) เท่านั้น และต้องยืนยันรหัสลับก่อนนำเข้าข้อมูลหรือรีเซ็ตระบบ</p>
+            </div>
+          </div>
+
+          <div class="note lock" style="margin-bottom:16px">
+            <b>🔐 ระบบป้องกันความปลอดภัยระดับจังหวัด:</b> การนำเข้าข้อมูลด้วยไฟล์ Excel และการรีเซ็ตข้อมูลเป็นค่าเริ่มต้น อนุญาตให้เฉพาะ <b>Admin จังหวัด</b> เท่านั้น และต้องกรอกรหัสผ่านชั้นที่ 2 ก่อนดำเนินการทุกครั้ง
+          </div>
+
+          <div class="drop" id="excelDropZone" onclick="triggerProtectedExcelPick()">
+            <div style="font-size:38px;margin-bottom:8px">📊</div>
+            <h4 style="font-size:16px;font-weight:800;margin-bottom:4px">คลิกเพื่อเลือกไฟล์ Excel (.xlsx, .csv) หรือลากไฟล์มาวางที่นี่</h4>
+            <p style="font-size:13px;color:var(--muted)">ระบบจะขอรหัสยืนยันความปลอดภัยก่อนนำเข้าข้อมูลการส่งรายงานประจำเดือน</p>
+            <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" hidden onchange="handleExcelFileSelected(event)">
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+            <button class="btn btn-primary btn-sm" onclick="triggerProtectedExcelPick()">📂 เลือกไฟล์ Excel เพื่อนำเข้า</button>
+            <button class="btn btn-ok btn-sm" onclick="downloadGoogleSheetTemplate()">📥 ดาวน์โหลดตารางแม่แบบสำหรับ Google Sheets / Excel (.xlsx)</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportCurrentToExcel()">📤 ส่งออกข้อมูลปัจจุบันเป็น Excel (.xlsx)</button>
+            <button class="btn btn-danger btn-sm" onclick="requestResetData()">🔄 รีเซ็ตข้อมูลทั้งหมดเป็นเริ่มต้น (0 งาน)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PAGE: SETTINGS ==================== -->
+      <section class="page" id="page-settings">
+        <div class="card" id="gasSettingsCard">
+          <div class="card-h">
+            <div>
+              <h3>🔗 เชื่อมต่อ Google Apps Script, Google Drive & LINE Messaging API (เฉพาะ Admin จังหวัด)</h3>
+              <p>เมื่อใส่ Web App URL แล้ว ทุกไฟล์ที่อำเภออัปโหลดจะถูกจัดเก็บใน Google Drive แยกเป็น 4 โฟลเดอร์ตามกลุ่มงานอัตโนมัติ</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Google Apps Script Web App URL (สำหรับบันทึก Google Sheets + อัปโหลดไฟล์เข้า Google Drive + ส่ง LINE)</label>
+            <input type="url" id="cfgGasUrl" class="inp" placeholder="https://script.google.com/macros/s/.../exec">
+          </div>
+          <div class="form-group">
+            <label>Google Drive Folder ID หลัก (เว้นว่างได้ ระบบจะสร้างโฟลเดอร์หลักให้อัตโนมัติ)</label>
+            <input type="text" id="cfgDriveFolderId" class="inp" placeholder="ระบุ Folder ID ของ Google Drive (ถ้ามี)">
+          </div>
+          <div class="form-group">
+            <label>LINE Channel Access Token (ระบุภายหลังได้)</label>
+            <input type="password" id="cfgLineToken" class="inp" placeholder="ใส่ Channel Access Token ของ LINE OA">
+          </div>
+          <div class="form-group">
+            <label>LINE ID / Group ID เป้าหมายหลัก (ระบุภายหลังได้)</label>
+            <input type="text" id="cfgLineTarget" class="inp" placeholder="เช่น C1234567890abcdef... (หากเว้นว่างจะส่งแบบ Broadcast)">
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+            <button class="btn btn-primary btn-sm" onclick="saveGasSettings()">💾 บันทึกการตั้งค่า</button>
+            <button class="btn btn-line btn-sm" onclick="testLineConnection()">🔔 ทดสอบแจ้งเตือน LINE</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ==================== MODAL: SUBMIT REPORT + FILE UPLOAD (<= 5 MB) ==================== -->
+<div class="ov" id="submitModal">
+  <div class="modal">
+    <div class="modal-h">
+      <h3 id="subModalTitle">📤 ส่งรายงานประจำเดือน & อัปโหลดไฟล์งาน</h3>
+      <button class="btn btn-ghost btn-xs" onclick="closeModal('submitModal')">✕</button>
+    </div>
+    <div class="modal-b">
+      <form onsubmit="confirmSubmitReport(event)">
+        <input type="hidden" id="subMonth">
+        <input type="hidden" id="subDistId">
+        <input type="hidden" id="subRepId">
+        <div class="form-group">
+          <label>อำเภอ / กลุ่มงาน</label>
+          <input type="text" id="subDistName" class="inp" readonly>
+        </div>
+        <div class="form-group">
+          <label>หัวข้อรายงาน</label>
+          <textarea id="subRepName" class="inp" rows="2" readonly></textarea>
+        </div>
+
+        <!-- ช่องอัปโหลดไฟล์ทุกนามสกุล ไม่เกิน 5 MB -->
+        <div class="form-group">
+          <label>📎 อัปโหลดไฟล์รายงาน (รองรับทุกนามสกุล ขนาดไม่เกิน 5 MB — จัดเก็บลง Google Drive แยกตามกลุ่มงาน)</label>
+          <div class="file-upload-box" onclick="document.getElementById('subFileInput').click()">
+            <div style="font-size:24px;margin-bottom:4px">📁 คลิกเพื่อเลือกไฟล์แนบ (ทุกนามสกุล ≤ 5 MB)</div>
+            <div style="font-size:12px;color:var(--muted)" id="subDriveFolderHint">ไฟล์จะถูกจัดเก็บเข้าโฟลเดอร์กลุ่มงานใน Google Drive อัตโนมัติ</div>
+            <input type="file" id="subFileInput" accept="*/*" hidden onchange="handleReportFileChange(event)">
+          </div>
+          <div class="file-meta" id="subFileMeta">
+            <span id="subFileNameTxt" style="font-weight:700;color:var(--blue-600);word-break:break-all"></span>
+            <button type="button" class="btn btn-danger btn-xs" onclick="clearSelectedReportFile()">ลบไฟล์</button>
+          </div>
+          <div class="login-err" id="subFileErr" style="margin-top:8px;margin-bottom:0"></div>
+        </div>
+
+        <div class="form-group">
+          <label>ลิงก์เพิ่มเติม / โพสต์ประชาสัมพันธ์ / ลิงก์ภายนอก (ถ้ามี)</label>
+          <input type="url" id="subLink" class="inp" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label>ชื่อผู้ส่งรายงาน</label>
+          <input type="text" id="subSender" class="inp" placeholder="ระบุชื่อเจ้าหน้าที่ผู้ส่งงาน" required>
+        </div>
+        <div class="form-group">
+          <label>หมายเหตุ / รายละเอียดผลการดำเนินงาน</label>
+          <textarea id="subNote" class="inp" rows="2" placeholder="ระบุรายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('submitModal')">ยกเลิก</button>
+          <button type="submit" class="btn btn-primary" id="btnConfirmSubmit">📤 ยืนยันการส่งรายงาน</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: QUICK ADD / EDIT REPORT & 12-MONTH VISIBILITY (ADMIN ONLY) ==================== -->
+<div class="ov" id="reportConfigModal">
+  <div class="modal">
+    <div class="modal-h">
+      <h3 id="repCfgModalTitle">➕ เพิ่ม / แก้ไขหัวข้อการรายงานประจำเดือน</h3>
+      <button class="btn btn-ghost btn-xs" onclick="closeModal('reportConfigModal')">✕</button>
+    </div>
+    <div class="modal-b">
+      <form onsubmit="saveReportConfigModal(event)">
+        <input type="hidden" id="cfgRepMode" value="add">
+        <input type="hidden" id="cfgRepId" value="">
+        <div class="form-group">
+          <label>กลุ่มงานหลัก (4 กลุ่มงาน)</label>
+          <select id="cfgRepGroup" class="inp" required>
+            <option value="G1">1. กลุ่มงานประสานและสนับสนุนการบริหารงานพัฒนาชุมชน</option>
+            <option value="G2">2. กลุ่มงานส่งเสริมการพัฒนาชุมชน</option>
+            <option value="G3">3. กลุ่มงานสารสนเทศการพัฒนาชุมชน</option>
+            <option value="G4">4. กลุ่มงานยุทธศาสตร์การพัฒนาชุมชน</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ชื่อหัวข้อรายงาน</label>
+          <textarea id="cfgRepName" class="inp" rows="3" placeholder="ระบุชื่อหัวข้อรายงาน..." required></textarea>
+        </div>
+        <div class="form-group">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px">
+            <label style="margin-bottom:0">📅 กำหนดเดือนที่ต้องส่งรายงานนี้ (คลิกเพื่อ เปิดส่ง / ซ่อนรายเดือน)</label>
+            <div style="display:flex;gap:5px">
+              <button type="button" class="btn btn-ok btn-xs" onclick="toggleAllModalMonths(true)">เปิดทุกเดือน</button>
+              <button type="button" class="btn btn-ghost btn-xs" onclick="toggleAllModalMonths(false)">ซ่อนทุกเดือน</button>
+            </div>
+          </div>
+          <div class="m-grid" id="cfgRepMonthsGrid"></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('reportConfigModal')">ยกเลิก</button>
+          <button type="submit" class="btn btn-primary">💾 บันทึกหัวข้อรายงาน</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: ADMIN SECURITY PIN (02102542) ==================== -->
+<div class="ov" id="pinModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-h">
+      <h3>🔐 ยืนยันรหัสความปลอดภัยแอดมินจังหวัด</h3>
+      <button class="btn btn-ghost btn-xs" onclick="closeModal('pinModal')">✕</button>
+    </div>
+    <div class="modal-b">
+      <p id="pinModalDesc" style="font-size:13.5px;color:var(--muted);margin-bottom:14px">
+        กรุณากรอกรหัสยืนยันสำหรับแอดมินระดับจังหวัดเพื่อดำเนินการต่อ
+      </p>
+      <div class="login-err" id="pinErr">รหัสยืนยันไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง</div>
+      <form onsubmit="verifyPinSubmit(event)">
+        <div class="form-group">
+          <label for="pinInput">รหัสยืนยันการดำเนินการ (Admin Security PIN)</label>
+          <input type="password" id="pinInput" class="inp" placeholder="กรอกรหัสยืนยัน" required autocomplete="off">
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('pinModal')">ยกเลิก</button>
+          <button type="submit" class="btn btn-danger">✅ ยืนยันรหัส</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================== 1. DATA & CONFIGURATION ================== */
+const MONTHS = [
+  'มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+  'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'
+];
+
+const ADMIN_ACTION_PIN = '02102542';
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+
+const ACCOUNTS = {
+  'Admin': { pass: '9999', role: 'admin', name: 'แอดมินจังหวัด (สพจ.อุทัยธานี)', distId: 'ALL' },
+  'UTI01': { pass: '1111', role: 'district', name: '1. สำนักงานพัฒนาชุมชนอำเภอเมือง', distId: 'UTI01' },
+  'UTI02': { pass: '2222', role: 'district', name: '2. สำนักงานพัฒนาชุมชนอำเภอหนองขาหย่าง', distId: 'UTI02' },
+  'UTI03': { pass: '3333', role: 'district', name: '3. สำนักงานพัฒนาชุมชนอำเภอหนองฉาง', distId: 'UTI03' },
+  'UTI04': { pass: '4444', role: 'district', name: '4. สำนักงานพัฒนาชุมชนอำเภอทัพทัน', distId: 'UTI04' },
+  'UTI05': { pass: '5555', role: 'district', name: '5. สำนักงานพัฒนาชุมชนอำเภอสว่างอารมณ์', distId: 'UTI05' },
+  'UTI06': { pass: '6666', role: 'district', name: '6. สำนักงานพัฒนาชุมชนอำเภอลานสัก (UTI06)', distId: 'UTI06' },
+  'UTI07': { pass: '7777', role: 'district', name: '7. สำนักงานพัฒนาชุมชนอำเภอลานสัก / ห้วยคต (UTI07)', distId: 'UTI07' },
+  'UTI08': { pass: '8888', role: 'district', name: '8. สำนักงานพัฒนาชุมชนอำเภอบ้านไร่', distId: 'UTI08' }
+};
+
+const DISTRICTS = [
+  { id: 'UTI01', name: '1. สพอ.เมืองอุทัยธานี', short: 'อ.เมืองฯ' },
+  { id: 'UTI02', name: '2. สพอ.หนองขาหย่าง', short: 'อ.หนองขาหย่าง' },
+  { id: 'UTI03', name: '3. สพอ.หนองฉาง', short: 'อ.หนองฉาง' },
+  { id: 'UTI04', name: '4. สพอ.ทัพทัน', short: 'อ.ทัพทัน' },
+  { id: 'UTI05', name: '5. สพอ.สว่างอารมณ์', short: 'อ.สว่างอารมณ์' },
+  { id: 'UTI06', name: '6. สพอ.ลานสัก (UTI06)', short: 'อ.ลานสัก (06)' },
+  { id: 'UTI07', name: '7. สพอ.ลานสัก/ห้วยคต (UTI07)', short: 'อ.ห้วยคต (07)' },
+  { id: 'UTI08', name: '8. สพอ.บ้านไร่', short: 'อ.บ้านไร่' }
+];
+
+const DEFAULT_WORKGROUPS = [
+  {
+    id: 'G1',
+    name: '1. กลุ่มงานประสานและสนับสนุนการบริหารงานพัฒนาชุมชน',
+    short: '1. กลุ่มงานประสานฯ',
+    reports: [
+      { id: 'G1-R1', name: '1. รายงานวันลาข้าราชการ' },
+      { id: 'G1-R2', name: '2. ค่าเช่าบ้าน' },
+      { id: 'G1-R3', name: '3. ค่าใช้จ่ายในการเดินทางไปราชการ' },
+      { id: 'G1-R4', name: '4. รายงานการประชุมสำนักงานพัฒนาชุมชนอำเภอประจำเดือน' },
+      { id: 'G1-R5', name: '5. รายงานมาตรการประหยัดพลังงาน' }
+    ]
+  },
+  {
+    id: 'G2',
+    name: '2. กลุ่มงานส่งเสริมการพัฒนาชุมชน',
+    short: '2. กลุ่มงานส่งเสริมฯ',
+    reports: [
+      { id: 'G2-R1', name: '1. รายงานยอดจำหน่ายสินค้า OTOP (ระบบ online)' },
+      { id: 'G2-R2', name: '2. รายงานตลาดนัดคนไทยยิ้มได้ (ในระบบ online)' },
+      { id: 'G2-R3', name: '3. รายงานผลการขับเคลื่อนกิจกรรมตามภารกิจองค์กรสตรี' },
+      { id: 'G2-R4', name: '4. รายงานผลการดำเนินงานกิจกรรมผ้าไทยใส่ให้สนุก ตามพระราชดำริฯ พร้อมส่งลิ้งค์การเผยแพร่ประชาสัมพันธ์ผ่านสื่อสังคม online (ผ่านทางไลน์กลุ่ม : รง.ผ้าไทย อน.)' },
+      { id: 'G2-R5', name: '5. รายงานโครงการวัด ประชารัฐ สร้างสุข เฉลิมพระเกียรติ ข่าวประชาสัมพันธ์ และกิจกรรมจิตอาสา' },
+      { id: 'G2-R6', name: '6. รายงานการประชาสัมพันธ์ชุมชนท่องเที่ยวของจังหวัดอุทัยธานี (ผ่านช่องทางไลน์กลุ่ม : จนท.นวัตวิถี อน.)' },
+      { id: 'G2-R7', name: '7. รายงานผลการดำเนินกิจกรรมตัวชี้วัด OTOP PLUS' },
+      { id: 'G2-R8', name: '8. รายงานปฏิบัติการ "Quick Win" 90 วัน ปลูกผักสวนครัวเพื่อสร้างความมั่นคงทางอาหาร' },
+      { id: 'G2-R9', name: '9. รายงานผู้ผลิต ผู้ประกอบการ OTOP ที่เข้าร่วมโครงการไทยช่วยไทย พลัส' }
+    ]
+  },
+  {
+    id: 'G3',
+    name: '3. กลุ่มงานสารสนเทศการพัฒนาชุมชน',
+    short: '3. กลุ่มงานสารสนเทศฯ',
+    reports: [
+      { id: 'G3-R1', name: '1. รายงานข่าวประชาสัมพันธ์งานพัฒนาชุมชน 5 ช่องทาง' },
+      { id: 'G3-R2', name: '2. รายงานการใช้ประโยชน์ Click ชุมชน' },
+      { id: 'G3-R3', name: '3. รายงาน CDD AI' },
+      { id: 'G3-R4', name: '4. รายงานผลการดำเนินงานกองทุนแม่ของแผ่นดิน 128 สืบสานปณิธานกองทุนแม่ของแผ่นดิน' },
+      { id: 'G3-R5', name: '5. รายงานผลการดำเนินงานกิจกรรมขับเคลื่อนพัฒนาครัวเรือนยากจน' },
+      { id: 'G3-R6', name: '6. รายงานการรักษาสิ่งแวดล้อมในที่ทำงาน 5 ส.' },
+      { id: 'G3-R7', name: '7. รายงานผลประเด็นเน้นย้ำของอธิบดีกรมการพัฒนาชุมชน 5+1 เรื่อง การส่งเสริมการใช้ประโยชน์ข้อมูลความจำเป็นพื้นฐาน' }
+    ]
+  },
+  {
+    id: 'G4',
+    name: '4. กลุ่มงานยุทธศาสตร์การพัฒนาชุมชน',
+    short: '4. กลุ่มงานยุทธศาสตร์ฯ',
+    reports: [
+      { id: 'G4-R1', name: '1. รายงานผลการบริหารงบประมาณและการเบิกจ่ายประจำเดือน' },
+      { id: 'G4-R2', name: '2. รายงานผลการดำเนินงานตามแผนปฏิบัติราชการประจำปี' },
+      { id: 'G4-R3', name: '3. รายงานผลการติดตามและประเมินผลโครงการพัฒนาชุมชน' },
+      { id: 'G4-R4', name: '4. รายงานสรุปผลการขับเคลื่อนงานยุทธศาสตร์กรมการพัฒนาชุมชน' }
+    ]
+  }
+];
+
+const STORAGE_KEY = 'CDD_UTHAI_REPORT_DB_V5';
+const WORKGROUPS_KEY = 'CDD_UTHAI_WORKGROUPS_CFG_V6';
+const HIDDEN_REPORTS_KEY = 'CDD_UTHAI_HIDDEN_BY_MONTH_V6';
+const LINE_REC_KEY = 'CDD_UTHAI_LINE_RECIPIENTS_V5';
+const GAS_CFG_KEY = 'CDD_UTHAI_GAS_CFG_V5';
+
+let WORKGROUPS = JSON.parse(JSON.stringify(DEFAULT_WORKGROUPS));
+let hiddenReportsByMonth = {}; // { 'มกราคม': { 'G1-R2': true } }
+let currentUser = null;
+let currentMonth = MONTHS[new Date().getMonth()];
+let currentPage = 'overview';
+let selectedApprovalGroup = 'ALL';
+let selectedManageGroup = 'ALL';
+let showHiddenInWorkgroup = false;
+let modalMonthSelection = {}; // สำหรับ Modal ตั้งค่า 12 เดือน
+let db = {};
+let lineRecipients = [];
+let gasConfig = { url: '', driveFolderId: '', token: '', target: '' };
+let pendingPinCallback = null;
+let stagedUploadFile = null;
+
+/* ================== 2. INDEXEDDB FOR UP TO 5MB FILE STORAGE ================== */
+const IDB_NAME = 'CDD_UTHAI_FILE_DB';
+const IDB_STORE = 'report_files';
+
+function openFileIDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = e => {
+      const idb = e.target.result;
+      if (!idb.objectStoreNames.contains(IDB_STORE)) {
+        idb.createObjectStore(IDB_STORE);
+      }
+    };
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = e => reject(e.target.error);
+  });
+}
+
+async function saveFileToIDB(key, fileObj) {
+  try {
+    const idb = await openFileIDB();
+    return new Promise((resolve, reject) => {
+      const tx = idb.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).put(fileObj, key);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = e => reject(e.target.error);
+    });
+  } catch (err) {
+    return false;
+  }
+}
+
+async function getFileFromIDB(key) {
+  try {
+    const idb = await openFileIDB();
+    return new Promise((resolve, reject) => {
+      const tx = idb.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).get(key);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    });
+  } catch (err) {
+    return null;
+  }
+}
+
+async function clearAllFilesIDB() {
+  try {
+    const idb = await openFileIDB();
+    const tx = idb.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).clear();
+  } catch (err) {}
+}
+
+/* ================== 3. INITIALIZATION & DYNAMIC REPORT HELPERS ================== */
+function createDefaultRecord() {
+  return {
+    status: 'ยังไม่ส่งรายงาน',
+    score: 0,
+    link: '',
+    fileName: '',
+    fileSize: 0,
+    mimeType: '',
+    driveViewUrl: '',
+    driveDownloadUrl: '',
+    sender: '',
+    submittedAt: '',
+    note: ''
+  };
+}
+
+function createEmptyHiddenMap() {
+  const map = {};
+  MONTHS.forEach(m => { map[m] = {}; });
+  return map;
+}
+
+function createEmptyDB() {
+  const fresh = {};
+  MONTHS.forEach(m => {
+    fresh[m] = {};
+    DISTRICTS.forEach(d => {
+      fresh[m][d.id] = {};
+      WORKGROUPS.forEach(g => {
+        g.reports.forEach(r => {
+          fresh[m][d.id][r.id] = createDefaultRecord();
+        });
+      });
+    });
+  });
+  return fresh;
+}
+
+function ensureDBIntegrity() {
+  if (!hiddenReportsByMonth || typeof hiddenReportsByMonth !== 'object') {
+    hiddenReportsByMonth = createEmptyHiddenMap();
+  }
+  MONTHS.forEach(m => {
+    if (!hiddenReportsByMonth[m]) hiddenReportsByMonth[m] = {};
+    if (!db[m]) db[m] = {};
+    DISTRICTS.forEach(d => {
+      if (!db[m][d.id]) db[m][d.id] = {};
+      WORKGROUPS.forEach(g => {
+        g.reports.forEach(r => {
+          if (!db[m][d.id][r.id]) {
+            db[m][d.id][r.id] = createDefaultRecord();
+          }
+        });
+      });
+    });
+  });
+}
+
+function isReportHidden(month, repId) {
+  return Boolean(hiddenReportsByMonth?.[month]?.[repId]);
+}
+
+function isReportActive(month, repId) {
+  return !isReportHidden(month, repId);
+}
+
+function getGroupReportsForMonth(gId, month, includeHidden = false) {
+  const g = WORKGROUPS.find(x => x.id === gId);
+  if (!g) return [];
+  return g.reports.filter(r => includeHidden || isReportActive(month, r.id));
+}
+
+function getAllReportsFlat(month = null, includeHidden = true) {
+  const list = [];
+  WORKGROUPS.forEach(g => {
+    g.reports.forEach(r => {
+      if (month && !includeHidden && isReportHidden(month, r.id)) return;
+      list.push({ groupId: g.id, groupName: g.name, groupShort: g.short, ...r });
+    });
+  });
+  return list;
+}
+
+function loadState() {
+  try {
+    const wgRaw = localStorage.getItem(WORKGROUPS_KEY);
+    WORKGROUPS = wgRaw ? JSON.parse(wgRaw) : JSON.parse(JSON.stringify(DEFAULT_WORKGROUPS));
+  } catch (e) {
+    WORKGROUPS = JSON.parse(JSON.stringify(DEFAULT_WORKGROUPS));
+  }
+  try {
+    const hidRaw = localStorage.getItem(HIDDEN_REPORTS_KEY);
+    hiddenReportsByMonth = hidRaw ? JSON.parse(hidRaw) : createEmptyHiddenMap();
+  } catch (e) {
+    hiddenReportsByMonth = createEmptyHiddenMap();
+  }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    db = raw ? JSON.parse(raw) : createEmptyDB();
+  } catch (e) {
+    db = createEmptyDB();
+  }
+  ensureDBIntegrity();
+
+  try {
+    const lr = localStorage.getItem(LINE_REC_KEY);
+    lineRecipients = lr ? JSON.parse(lr) : [];
+  } catch (e) {
+    lineRecipients = [];
+  }
+  try {
+    const gc = localStorage.getItem(GAS_CFG_KEY);
+    if (gc) {
+      gasConfig = JSON.parse(gc);
+      document.getElementById('cfgGasUrl').value = gasConfig.url || '';
+      document.getElementById('cfgDriveFolderId').value = gasConfig.driveFolderId || '';
+      document.getElementById('cfgLineToken').value = gasConfig.token || '';
+      document.getElementById('cfgLineTarget').value = gasConfig.target || '';
+    }
+  } catch (e) {}
+}
+
+function saveDB() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  updatePendingBadge();
+}
+
+function saveWorkgroupsConfig() {
+  localStorage.setItem(WORKGROUPS_KEY, JSON.stringify(WORKGROUPS));
+  localStorage.setItem(HIDDEN_REPORTS_KEY, JSON.stringify(hiddenReportsByMonth));
+  ensureDBIntegrity();
+  saveDB();
+}
+
+function formatBytes(bytes) {
+  if (!bytes || bytes === 0) return '';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+/* ================== 4. SECURITY PIN (02102542) & ADMIN GUARD ================== */
+function isAdmin() {
+  return currentUser && currentUser.role === 'admin';
+}
+
+function requireAdminAndPin(actionDescription, callback) {
+  if (!isAdmin()) {
+    showToast('⛔ เฉพาะแอดมินระดับจังหวัด (Admin) เท่านั้นที่มีสิทธิ์ทำรายการนี้');
+    return;
+  }
+  pendingPinCallback = callback;
+  document.getElementById('pinModalDesc').textContent = actionDescription;
+  document.getElementById('pinInput').value = '';
+  document.getElementById('pinErr').style.display = 'none';
+  document.getElementById('pinModal').classList.add('on');
+  setTimeout(() => document.getElementById('pinInput').focus(), 80);
+}
+
+function verifyPinSubmit(e) {
+  e.preventDefault();
+  if (!isAdmin()) {
+    closeModal('pinModal');
+    showToast('⛔ เฉพาะแอดมินระดับจังหวัดเท่านั้น');
+    return;
+  }
+  const entered = document.getElementById('pinInput').value.trim();
+  if (entered !== ADMIN_ACTION_PIN) {
+    document.getElementById('pinErr').style.display = 'block';
+    return;
+  }
+  closeModal('pinModal');
+  if (typeof pendingPinCallback === 'function') {
+    const cb = pendingPinCallback;
+    pendingPinCallback = null;
+    cb();
+  }
+}
+
+function requestResetData() {
+  requireAdminAndPin(
+    'ยืนยันการรีเซ็ตข้อมูลการส่งรายงานและไฟล์แนบทั้งหมดกลับเป็นค่าเริ่มต้น (0 งาน / ยังไม่ส่งรายงาน) กรุณากรอกรหัสความปลอดภัยของแอดมินจังหวัด',
+    async () => {
+      db = createEmptyDB();
+      ensureDBIntegrity();
+      await clearAllFilesIDB();
+      saveDB();
+      renderAll();
+      showToast('🔄 รีเซ็ตข้อมูลการส่งรายงานทั้งหมดเป็นค่าเริ่มต้น (0 งาน) เรียบร้อยแล้ว');
+    }
+  );
+}
+
+function triggerProtectedExcelPick() {
+  requireAdminAndPin(
+    'การนำเข้าข้อมูลจากไฟล์ Excel สงวนสิทธิ์เฉพาะแอดมินระดับจังหวัด กรุณากรอกรหัสความปลอดภัยก่อนเลือกไฟล์',
+    () => {
+      const inp = document.getElementById('excelFileInput');
+      inp.value = '';
+      inp.click();
+    }
+  );
+}
+
+/* ================== 5. LOGIN & ROLE PERMISSIONS ================== */
+function handleLogin(e) {
+  e.preventDefault();
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  const matchedKey = Object.keys(ACCOUNTS).find(k => k.toLowerCase() === u.toLowerCase());
+  const acc = matchedKey ? ACCOUNTS[matchedKey] : null;
+
+  if (!acc || acc.pass !== p) {
+    document.getElementById('loginErr').style.display = 'block';
+    return;
+  }
+  document.getElementById('loginErr').style.display = 'none';
+  currentUser = { username: matchedKey, ...acc };
+  document.getElementById('loginScreen').classList.add('hidden');
+  applyRolePermissions();
+  initFilters();
+  switchPage('overview');
+  showToast('ยินดีต้อนรับสู่ CDD Uthai Report: ' + currentUser.name);
+}
+
+function handleLogout() {
+  currentUser = null;
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginScreen').classList.remove('hidden');
+}
+
+function applyRolePermissions() {
+  const admin = isAdmin();
+  document.getElementById('uRoleTxt').textContent = admin ? 'ผู้ดูแลระบบระดับจังหวัด (Admin)' : 'ระดับอำเภอ (District)';
+  document.getElementById('uNameTxt').textContent = currentUser.name;
+
+  const adminElements = [
+    'btnTopManageRep', 'btnTopExcel', 'btnTopReset',
+    'navManageReports', 'navExcel', 'navDataLabel', 'navLine',
+    'gasSettingsCard', 'adminBulkActions'
+  ];
+  adminElements.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('admin-only-hidden', !admin);
+  });
+}
+
+/* ================== 6. NAVIGATION & RENDERING ================== */
+function initMonthBar() {
+  const bar = document.getElementById('monthBar');
+  bar.innerHTML = MONTHS.map(m =>
+    `<button class="m-btn ${m === currentMonth ? 'active' : ''}" onclick="selectMonth('${m}')">${m}</button>`
+  ).join('');
+  document.querySelectorAll('.cur-month-lbl').forEach(el => el.textContent = currentMonth);
+  updateSidebarGroupCounts();
+}
+
+function updateSidebarGroupCounts() {
+  WORKGROUPS.forEach(g => {
+    const activeCnt = getGroupReportsForMonth(g.id, currentMonth, false).length;
+    const totalCnt = g.reports.length;
+    const badge = document.getElementById('navCnt-' + g.id);
+    if (badge) {
+      badge.textContent = activeCnt === totalCnt ? `${activeCnt} งาน` : `${activeCnt}/${totalCnt} งาน`;
+    }
+  });
+}
+
+function selectMonth(m) {
+  currentMonth = m;
+  const apM = document.getElementById('apFilterMonth');
+  if (apM) apM.value = m;
+  initMonthBar();
+  populateReportDropdown();
+  renderAll();
+}
+
+function switchPage(pageId) {
+  if ((pageId === 'excel' || pageId === 'line' || pageId === 'manage-reports') && !isAdmin()) {
+    showToast('⛔ เมนูนี้สำหรับแอดมินระดับจังหวัดเท่านั้น');
+    return;
+  }
+  currentPage = pageId;
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === pageId));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+  if (['G1', 'G2', 'G3', 'G4'].includes(pageId)) {
+    document.getElementById('page-workgroup').classList.add('active');
+    renderWorkgroupPage(pageId);
+  } else {
+    const target = document.getElementById('page-' + pageId);
+    if (target) target.classList.add('active');
+  }
+  renderAll();
+}
+
+function getVisibleDistricts() {
+  if (!currentUser) return [];
+  if (isAdmin()) return DISTRICTS;
+  return DISTRICTS.filter(d => d.id === currentUser.distId);
+}
+
+function renderAll() {
+  if (!currentUser) return;
+  updateSidebarGroupCounts();
+  updatePendingBadge();
+  renderOverview();
+  renderAnnual();
+  renderApprovalPage();
+  if (isAdmin()) {
+    renderLinePage();
+    renderManageReportsPage();
+  }
+  if (['G1', 'G2', 'G3', 'G4'].includes(currentPage)) renderWorkgroupPage(currentPage);
+}
+
+function updatePendingBadge() {
+  let pend = 0;
+  const dists = getVisibleDistricts();
+  MONTHS.forEach(m => {
+    const activeReps = getAllReportsFlat(m, false);
+    dists.forEach(d => {
+      activeReps.forEach(r => {
+        if (db[m]?.[d.id]?.[r.id]?.status === 'รอตรวจสอบ') pend++;
+      });
+    });
+  });
+  document.getElementById('badgePend').textContent = pend;
+}
+
+/* ================== 7. OVERVIEW, CHARTS & ANNUAL DASHBOARD ================== */
+function renderOverview() {
+  const dists = getVisibleDistricts();
+  const activeReports = getAllReportsFlat(currentMonth, false);
+  const allReportsCount = getAllReportsFlat(currentMonth, true).length;
+  const hiddenCount = allReportsCount - activeReports.length;
+
+  const totalSlots = dists.length * activeReports.length;
+  const maxPossibleScore = totalSlots * 2;
+  const maxScorePerDist = activeReports.length * 2;
+
+  document.getElementById('overviewChartSub').textContent =
+    `เกณฑ์คะแนน: 1 รายงาน = 2 คะแนน (เดือน${currentMonth} เปิดส่ง ${activeReports.length} งาน = คะแนนเต็ม ${maxScorePerDist} คะแนน/อำเภอ${hiddenCount > 0 ? ` • ซ่อน/งดส่ง ${hiddenCount} งาน` : ''})`;
+
+  let approvedCnt = 0, pendingCnt = 0, rejectCnt = 0, totalScore = 0;
+  dists.forEach(d => {
+    activeReports.forEach(r => {
+      const rec = db[currentMonth]?.[d.id]?.[r.id];
+      if (!rec) return;
+      totalScore += Number(rec.score || 0);
+      if (rec.status === 'อนุมัติแล้ว') approvedCnt++;
+      else if (rec.status === 'รอตรวจสอบ') pendingCnt++;
+      else if (rec.status === 'แก้ไข') rejectCnt++;
+    });
+  });
+
+  const noneCnt = Math.max(0, totalSlots - approvedCnt - pendingCnt - rejectCnt);
+  const pct = totalSlots ? ((approvedCnt / totalSlots) * 100).toFixed(1) : '0.0';
+  const scorePct = maxPossibleScore ? ((totalScore / maxPossibleScore) * 100).toFixed(1) : '0.0';
+
+  document.getElementById('overviewKpis').innerHTML = `
+    <div class="kpi hero">
+      <div class="kpi-lb">คะแนนรวมประจำเดือน${currentMonth}</div>
+      <div class="kpi-val">${totalScore} / ${maxPossibleScore} <small style="font-size:13px">คะแนน</small></div>
+      <div class="kpi-sub">เกณฑ์ 1 งาน = 2 คะแนน (${scorePct}% • เปิดส่ง ${activeReports.length} หัวข้อ)</div>
+      <div class="kpi-bar"><i style="width:${scorePct}%"></i></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lb">อนุมัติแล้ว (ได้คะแนน)</div>
+      <div class="kpi-val" style="color:var(--ok)">${approvedCnt} / ${totalSlots} <small style="font-size:13px">งาน</small></div>
+      <div class="kpi-sub">ความก้าวหน้าร้อยละ ${pct}%</div>
+      <div class="kpi-bar"><i style="width:${pct}%;background:var(--ok)"></i></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lb">ส่งแล้ว (รอแอดมินตรวจ)</div>
+      <div class="kpi-val" style="color:var(--warn)">${pendingCnt} <small style="font-size:13px">งาน</small></div>
+      <div class="kpi-sub">รอการกดอนุมัติจากจังหวัด</div>
+      <div class="kpi-bar"><i style="width:${totalSlots ? (pendingCnt/totalSlots)*100 : 0}%;background:var(--warn)"></i></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lb">ยังไม่ส่งรายงาน (เดือน${currentMonth})</div>
+      <div class="kpi-val" style="color:var(--danger)">${noneCnt} <small style="font-size:13px">งาน</small></div>
+      <div class="kpi-sub">ต้องส่ง ${activeReports.length} งาน/อำเภอ ${hiddenCount > 0 ? `(งดส่ง ${hiddenCount} งาน)` : ''}</div>
+      <div class="kpi-bar"><i style="width:${totalSlots ? (noneCnt/totalSlots)*100 : 0}%;background:var(--danger)"></i></div>
+    </div>
+  `;
+
+  let dRows = '';
+  let barsHtml = '';
+
+  dists.forEach((d, idx) => {
+    let dApp = 0, dPend = 0, dScore = 0;
+    activeReports.forEach(r => {
+      const rec = db[currentMonth]?.[d.id]?.[r.id];
+      if (!rec) return;
+      dScore += Number(rec.score || 0);
+      if (rec.status === 'อนุมัติแล้ว') dApp++;
+      else if (rec.status === 'รอตรวจสอบ') dPend++;
+    });
+    const dPct = activeReports.length ? ((dApp / activeReports.length) * 100).toFixed(0) : '0';
+    const barW = maxScorePerDist ? Math.round((dScore / maxScorePerDist) * 100) : 0;
+
+    barsHtml += `
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px">
+          <b>${d.name}</b>
+          <span><b>${dScore}</b> / ${maxScorePerDist} คะแนน (${dApp}/${activeReports.length} งาน)</span>
+        </div>
+        <div style="height:10px;background:var(--surface-3);border-radius:99px;overflow:hidden">
+          <div style="width:${barW}%;height:100%;background:linear-gradient(90deg,var(--blue-500),var(--acc-500));border-radius:99px;transition:width .4s"></div>
+        </div>
+      </div>
+    `;
+
+    dRows += `<tr>
+      <td>${idx + 1}</td>
+      <td><b>${d.name}</b></td>
+      <td class="center"><span class="pill pill-ok">${dApp} / ${activeReports.length}</span></td>
+      <td class="center"><span class="pill pill-pend">${dPend}</span></td>
+      <td class="num"><b>${dScore}</b> / ${maxScorePerDist}</td>
+      <td class="num">${dPct}%</td>
+    </tr>`;
+  });
+
+  document.getElementById('chartDistrictBar').innerHTML = barsHtml;
+  document.getElementById('overviewDistrictTable').innerHTML = `
+    <table>
+      <thead><tr><th>#</th><th>สำนักงานพัฒนาชุมชนอำเภอ</th><th class="center">อนุมัติแล้ว</th><th class="center">รอตรวจ</th><th class="num">คะแนนที่ได้</th><th class="num">ความสำเร็จ</th></tr></thead>
+      <tbody>${dRows}</tbody>
+    </table>
+  `;
+
+  document.getElementById('chartStatusDonut').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px;padding:6px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:12px;background:rgba(16,185,129,.1)">
+        <span style="font-weight:700;color:#059669">✅ อนุมัติแล้ว</span>
+        <b style="font-size:16px;color:#059669">${approvedCnt} งาน</b>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:12px;background:rgba(245,158,11,.12)">
+        <span style="font-weight:700;color:#D97706">⏳ รอตรวจสอบ</span>
+        <b style="font-size:16px;color:#D97706">${pendingCnt} งาน</b>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:12px;background:var(--surface-3)">
+        <span style="font-weight:700;color:var(--muted)">⚪ ยังไม่ส่งรายงาน</span>
+        <b style="font-size:16px;color:var(--ink)">${noneCnt} งาน</b>
+      </div>
+      ${hiddenCount > 0 ? `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-radius:12px;background:rgba(100,116,139,.12)">
+        <span style="font-weight:700;color:var(--muted)">🙈 งดส่ง/ซ่อนในเดือนนี้</span>
+        <b style="font-size:14px;color:var(--muted)">${hiddenCount} หัวข้อ</b>
+      </div>` : ''}
+    </div>
+  `;
+
+  let gRows = '';
+  WORKGROUPS.forEach(g => {
+    const gActiveReps = getGroupReportsForMonth(g.id, currentMonth, false);
+    const gHiddenCnt = g.reports.length - gActiveReps.length;
+    const gTotal = dists.length * gActiveReps.length;
+    let gApp = 0, gScore = 0;
+    dists.forEach(d => {
+      gActiveReps.forEach(r => {
+        const rec = db[currentMonth]?.[d.id]?.[r.id];
+        if (rec?.status === 'อนุมัติแล้ว') gApp++;
+        gScore += Number(rec?.score || 0);
+      });
+    });
+    gRows += `<tr onclick="switchPage('${g.id}')" style="cursor:pointer">
+      <td>
+        <b>${g.name}</b>
+        <div style="font-size:11.5px;color:var(--blue-600)">
+          คลิกเพื่อส่งรายงาน/อัปโหลดไฟล์ (เดือนนี้เปิดส่ง ${gActiveReps.length} หัวข้อ${gHiddenCnt > 0 ? ` • ซ่อน ${gHiddenCnt} หัวข้อ` : ''})
+        </div>
+      </td>
+      <td class="center">${gApp}/${gTotal}</td>
+      <td class="num"><b>${gScore}</b> คะแนน</td>
+    </tr>`;
+  });
+  document.getElementById('overviewGroupTable').innerHTML = `
+    <table>
+      <thead><tr><th>กลุ่มงานหลัก (4 กลุ่มงาน)</th><th class="center">อนุมัติแล้ว</th><th class="num">คะแนนรวม</th></tr></thead>
+      <tbody>${gRows}</tbody>
+    </table>
+  `;
+}
+
+function renderAnnual() {
+  const dists = getVisibleDistricts();
+  let ths = MONTHS.map(m => {
+    const activeCnt = getAllReportsFlat(m, false).length;
+    return `<th class="center" title="เดือน${m} เปิดส่ง ${activeCnt} งาน (เต็ม ${activeCnt*2} คะแนน)">${m.slice(0, 4)}<br><small style="font-size:10px;color:var(--muted)">(${activeCnt*2} คะแนน)</small></th>`;
+  }).join('');
+  let rows = '';
+  dists.forEach(d => {
+    let yearSum = 0;
+    let cells = MONTHS.map(m => {
+      let sc = 0;
+      const activeReps = getAllReportsFlat(m, false);
+      activeReps.forEach(r => sc += Number(db[m]?.[d.id]?.[r.id]?.score || 0));
+      yearSum += sc;
+      return `<td class="center">${sc}</td>`;
+    }).join('');
+    rows += `<tr><td><b>${d.name}</b></td>${cells}<td class="num"><b>${yearSum}</b></td></tr>`;
+  });
+  document.getElementById('annualTableWrap').innerHTML = `
+    <table>
+      <thead><tr><th>อำเภอ</th>${ths}<th class="num">รวมทั้งปี</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+/* ================== 8. ADMIN TOPIC MANAGEMENT & MONTHLY HIDE/SHOW ================== */
+function renderManageRepGroupTabs() {
+  const tabs = [
+    { id: 'ALL', label: 'ทั้งหมด (4 กลุ่มงาน)' },
+    ...WORKGROUPS.map(g => ({ id: g.id, label: `${g.short} (${g.reports.length})` }))
+  ];
+  const wrap = document.getElementById('manageRepGroupTabs');
+  if (!wrap) return;
+  wrap.innerHTML = tabs.map(t =>
+    `<button class="stab ${selectedManageGroup === t.id ? 'active' : ''}" onclick="selectManageGroup('${t.id}')">${t.label}</button>`
+  ).join('');
+}
+
+function selectManageGroup(gId) {
+  selectedManageGroup = gId;
+  renderManageReportsPage();
+}
+
+function renderManageReportsPage() {
+  if (!isAdmin()) return;
+  renderManageRepGroupTabs();
+  const wrap = document.getElementById('manageReportsTableWrap');
+  if (!wrap) return;
+
+  const allReps = getAllReportsFlat(null, true).filter(r => selectedManageGroup === 'ALL' || r.groupId === selectedManageGroup);
+
+  let rows = '';
+  allReps.forEach((r, idx) => {
+    const activeThisMonth = isReportActive(currentMonth, r.id);
+    // นับจำนวนเดือนที่เปิดส่งทั้งปี
+    let activeMonthsCnt = 0;
+    MONTHS.forEach(m => { if (isReportActive(m, r.id)) activeMonthsCnt++; });
+
+    rows += `<tr class="${activeThisMonth ? '' : 'row-hidden'}">
+      <td class="center">${idx + 1}</td>
+      <td>
+        <span style="font-size:11px;font-weight:700;color:var(--blue-600)">[${r.groupShort}]</span><br>
+        <b>${r.name}</b>
+      </td>
+      <td class="center">
+        <button class="tgl-btn ${activeThisMonth ? 'on' : 'off'}" onclick="toggleReportForMonth('${currentMonth}','${r.id}')">
+          ${activeThisMonth ? '👁️ เปิดส่งในเดือน' + currentMonth : '🙈 ซ่อน/ไม่ต้องส่งเดือน' + currentMonth}
+        </button>
+      </td>
+      <td class="center">
+        <span class="pill ${activeMonthsCnt === 12 ? 'pill-ok' : activeMonthsCnt > 0 ? 'pill-pend' : 'pill-hide'}">
+          เปิดส่ง ${activeMonthsCnt}/12 เดือน
+        </span>
+      </td>
+      <td class="center">
+        <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-xs" onclick="openEditReportModal('${r.id}')">✏️ แก้ไข / ตั้งค่า 12 เดือน</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteReportTopic('${r.groupId}','${r.id}')">🗑️ ลบ</button>
+        </div>
+      </td>
+    </tr>`;
+  });
+
+  wrap.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th class="center">#</th>
+          <th>หัวข้อรายงาน (4 กลุ่มงาน)</th>
+          <th class="center">สถานะประจำเดือน${currentMonth} (คลิกเพื่อสลับ)</th>
+          <th class="center">ภาพรวมทั้งปี</th>
+          <th class="center">จัดการหัวข้อ</th>
+        </tr>
+      </thead>
+      <tbody>${rows || '<tr><td colspan="5" class="center">ยังไม่มีหัวข้อรายงานในกลุ่มนี้</td></tr>'}</tbody>
+    </table>
+  `;
+}
+
+function toggleReportForMonth(month, repId) {
+  if (!isAdmin()) {
+    showToast('⛔ เฉพาะแอดมินระดับจังหวัดเท่านั้นที่สามารถซ่อนหรือเปิดรายงานได้');
+    return;
+  }
+  if (!hiddenReportsByMonth[month]) hiddenReportsByMonth[month] = {};
+  const currentlyHidden = Boolean(hiddenReportsByMonth[month][repId]);
+  if (currentlyHidden) {
+    delete hiddenReportsByMonth[month][repId];
+  } else {
+    hiddenReportsByMonth[month][repId] = true;
+  }
+  saveWorkgroupsConfig();
+  populateReportDropdown();
+  renderAll();
+  const rep = getAllReportsFlat().find(x => x.id === repId);
+  const stateTxt = !currentlyHidden ? `🙈 ซ่อน/งดส่งในเดือน${month}` : `👁️ เปิดให้ส่งในเดือน${month}`;
+  showToast(`${stateTxt}: ${rep ? rep.name : repId}`);
+}
+
+function setAllReportsVisibilityForMonth(month, makeActive) {
+  if (!isAdmin()) return;
+  if (!hiddenReportsByMonth[month]) hiddenReportsByMonth[month] = {};
+  getAllReportsFlat().forEach(r => {
+    if (makeActive) {
+      delete hiddenReportsByMonth[month][r.id];
+    } else {
+      hiddenReportsByMonth[month][r.id] = true;
+    }
+  });
+  saveWorkgroupsConfig();
+  populateReportDropdown();
+  renderAll();
+  showToast(makeActive ? `👁️ เปิดให้ส่งรายงานทุกหัวข้อในเดือน${month} เรียบร้อยแล้ว` : `🙈 ซ่อนรายงานทั้งหมดในเดือน${month}`);
+}
+
+function copyVisibilityFromPrevMonth() {
+  if (!isAdmin()) return;
+  const idx = MONTHS.indexOf(currentMonth);
+  if (idx <= 0) {
+    showToast('⚠️ เดือนมกราคมเป็นเดือนแรกของปี ไม่สามารถคัดลอกจากเดือนก่อนหน้าได้');
+    return;
+  }
+  const prevMonth = MONTHS[idx - 1];
+  hiddenReportsByMonth[currentMonth] = JSON.parse(JSON.stringify(hiddenReportsByMonth[prevMonth] || {}));
+  saveWorkgroupsConfig();
+  populateReportDropdown();
+  renderAll();
+  showToast(`📋 คัดลอกการเปิด/ซ่อนรายงานจากเดือน${prevMonth} มายังเดือน${currentMonth} เรียบร้อยแล้ว`);
+}
+
+function createNewReportTopic(groupId, reportName, activeMonthsMap) {
+  const grp = WORKGROUPS.find(g => g.id === groupId);
+  if (!grp) return null;
+  const newId = `${groupId}-R${Date.now().toString().slice(-5)}`;
+  const newRep = { id: newId, name: reportName.trim() };
+  grp.reports.push(newRep);
+
+  MONTHS.forEach(m => {
+    if (!hiddenReportsByMonth[m]) hiddenReportsByMonth[m] = {};
+    if (activeMonthsMap[m]) {
+      delete hiddenReportsByMonth[m][newId];
+    } else {
+      hiddenReportsByMonth[m][newId] = true;
+    }
+  });
+
+  saveWorkgroupsConfig();
+  populateReportDropdown();
+  renderAll();
+  return newRep;
+}
+
+function handleAddNewReport(e) {
+  e.preventDefault();
+  if (!isAdmin()) {
+    showToast('⛔ เฉพาะแอดมินระดับจังหวัดเท่านั้น');
+    return;
+  }
+  const gId = document.getElementById('newRepGroup').value;
+  const name = document.getElementById('newRepName').value.trim();
+  const scope = document.getElementById('newRepScope').value;
+  if (!name) return;
+
+  const curIdx = MONTHS.indexOf(currentMonth);
+  const activeMap = {};
+  MONTHS.forEach((m, i) => {
+    if (scope === 'ALL_MONTHS') activeMap[m] = true;
+    else if (scope === 'FROM_CURRENT') activeMap[m] = i >= curIdx;
+    else if (scope === 'ONLY_CURRENT') activeMap[m] = m === currentMonth;
+  });
+
+  createNewReportTopic(gId, name, activeMap);
+  document.getElementById('newRepName').value = '';
+  showToast(`✅ เพิ่มหัวข้อรายงาน "${name}" เรียบร้อยแล้ว`);
+}
+
+function openQuickAddReportModal(defaultGroupId) {
+  if (!isAdmin()) {
+    showToast('⛔ เฉพาะแอดมินระดับจังหวัดเท่านั้น');
+    return;
+  }
+  document.getElementById('repCfgModalTitle').textContent = '➕ เพิ่มหัวข้อรายงานใหม่';
+  document.getElementById('cfgRepMode').value = 'add';
+  document.getElementById('cfgRepId').value = '';
+  document.getElementById('cfgRepGroup').value = (defaultGroupId && defaultGroupId !== 'ALL') ? defaultGroupId : 'G1';
+  document.getElementById('cfgRepGroup').disabled = false;
+  document.getElementById('cfgRepName').value = '';
+
+  modalMonthSelection = {};
+  MONTHS.forEach(m => { modalMonthSelection[m] = true; });
+  renderModalMonthsGrid();
+  document.getElementById('reportConfigModal').classList.add('on');
+}
+
+function openEditReportModal(repId) {
+  if (!isAdmin()) return;
+  const rep = getAllReportsFlat(null, true).find(r => r.id === repId);
+  if (!rep) return;
+
+  document.getElementById('repCfgModalTitle').textContent = '✏️ แก้ไขหัวข้อรายงาน & ตั้งค่าเดือนที่ต้องส่ง';
+  document.getElementById('cfgRepMode').value = 'edit';
+  document.getElementById('cfgRepId').value = rep.id;
+  document.getElementById('cfgRepGroup').value = rep.groupId;
+  document.getElementById('cfgRepGroup').disabled = false;
+  document.getElementById('cfgRepName').value = rep.name;
+
+  modalMonthSelection = {};
+  MONTHS.forEach(m => {
+    modalMonthSelection[m] = isReportActive(m, rep.id);
+  });
+  renderModalMonthsGrid();
+  document.getElementById('reportConfigModal').classList.add('on');
+}
+
+function renderModalMonthsGrid() {
+  const grid = document.getElementById('cfgRepMonthsGrid');
+  if (!grid) return;
+  grid.innerHTML = MONTHS.map(m => {
+    const on = Boolean(modalMonthSelection[m]);
+    return `<div class="m-chip ${on ? 'active-m' : 'hidden-m'}" onclick="toggleModalMonthChip('${m}')">
+      <span>${m}</span>
+      <span>${on ? '✅ ส่ง' : '🙈 ซ่อน'}</span>
+    </div>`;
+  }).join('');
+}
+
+function toggleModalMonthChip(m) {
+  modalMonthSelection[m] = !modalMonthSelection[m];
+  renderModalMonthsGrid();
+}
+
+function toggleAllModalMonths(state) {
+  MONTHS.forEach(m => { modalMonthSelection[m] = state; });
+  renderModalMonthsGrid();
+}
+
+function saveReportConfigModal(e) {
+  e.preventDefault();
+  if (!isAdmin()) return;
+  const mode = document.getElementById('cfgRepMode').value;
+  const repId = document.getElementById('cfgRepId').value;
+  const targetGroupId = document.getElementById('cfgRepGroup').value;
+  const newName = document.getElementById('cfgRepName').value.trim();
+  if (!newName) return;
+
+  if (mode === 'add') {
+    createNewReportTopic(targetGroupId, newName, modalMonthSelection);
+    closeModal('reportConfigModal');
+    showToast(`✅ เพิ่มหัวข้อรายงาน "${newName}" เรียบร้อยแล้ว`);
+    return;
+  }
+
+  // โหมดแก้ไข
+  let currentGroup = null;
+  let repObj = null;
+  WORKGROUPS.forEach(g => {
+    const found = g.reports.find(r => r.id === repId);
+    if (found) {
+      currentGroup = g;
+      repObj = found;
+    }
+  });
+  if (!repObj) return;
+
+  repObj.name = newName;
+  if (currentGroup.id !== targetGroupId) {
+    currentGroup.reports = currentGroup.reports.filter(r => r.id !== repId);
+    const destGroup = WORKGROUPS.find(g => g.id === targetGroupId);
+    if (destGroup) destGroup.reports.push(repObj);
+  }
+
+  MONTHS.forEach(m => {
+    if (!hiddenReportsByMonth[m]) hiddenReportsByMonth[m] = {};
+    if (modalMonthSelection[m]) {
+      delete hiddenReportsByMonth[m][repId];
+    } else {
+      hiddenReportsByMonth[m][repId] = true;
+    }
+  });
+
+  saveWorkgroupsConfig();
+  populateReportDropdown();
+  closeModal('reportConfigModal');
+  renderAll();
+  showToast(`💾 บันทึกการแก้ไขหัวข้อ "${newName}" เรียบร้อยแล้ว`);
+}
+
+function deleteReportTopic(groupId, repId) {
+  if (!isAdmin()) return;
+  const grp = WORKGROUPS.find(g => g.id === groupId);
+  if (!grp) return;
+  const rep = grp.reports.find(r => r.id === repId);
+  if (!rep) return;
+
+  grp.reports = grp.reports.filter(r => r.id !== repId);
+  MONTHS.forEach(m => {
+    if (hiddenReportsByMonth[m]) delete hiddenReportsByMonth[m][repId];
+  });
+  saveWorkgroupsConfig();
+  populateReportDropdown();
+  renderAll();
+  showToast(`🗑️ ลบหัวข้อรายงาน "${rep.name}" ออกจากระบบแล้ว`);
+}
+
+/* ================== 9. FILE UPLOAD (<= 5 MB) & ADMIN DOWNLOAD ================== */
+function buildFileCellHtml(month, distId, repId, rec) {
+  const parts = [];
+  if (rec.fileName) {
+    const sizeStr = rec.fileSize ? ` (${formatBytes(rec.fileSize)})` : '';
+    if (isAdmin()) {
+      parts.push(`
+        <button class="btn btn-sky btn-xs" onclick="downloadSubmittedFile('${month}','${distId}','${repId}')" title="ดาวน์โหลดไฟล์ ${rec.fileName}">
+          ⬇️ ดาวน์โหลดไฟล์ (${rec.fileName}${sizeStr})
+        </button>
+      `);
+      if (rec.driveViewUrl) {
+        parts.push(`<a href="${rec.driveViewUrl}" target="_blank" class="btn btn-ghost btn-xs" title="เปิดดูใน Google Drive">📁 Drive</a>`);
+      }
+    } else {
+      parts.push(`<span class="pill pill-ok">📎 ${rec.fileName}${sizeStr}</span>`);
+    }
+  }
+  if (rec.link) {
+    parts.push(`<a href="${rec.link}" target="_blank" style="color:var(--blue-600);font-weight:700;font-size:12px">🔗 เปิดลิงก์แนบ</a>`);
+  }
+  return parts.length ? `<div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center">${parts.join('')}</div>` : '-';
+}
+
+async function downloadSubmittedFile(month, distId, repId) {
+  if (!isAdmin()) {
+    showToast('⛔ เฉพาะแอดมินระดับจังหวัด (Admin) เท่านั้นที่สามารถดาวน์โหลดไฟล์งานได้');
+    return;
+  }
+  const rec = db[month]?.[distId]?.[repId];
+  if (!rec || !rec.fileName) {
+    showToast('⚠️ ไม่พบไฟล์แนบในรายการนี้');
+    return;
+  }
+
+  const idbKey = `${month}__${distId}__${repId}`;
+  const storedFile = await getFileFromIDB(idbKey);
+  if (storedFile && storedFile.dataUrl) {
+    const a = document.createElement('a');
+    a.href = storedFile.dataUrl;
+    a.download = rec.fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast(`⬇️ กำลังดาวน์โหลดไฟล์ "${rec.fileName}"`);
+    return;
+  }
+
+  if (rec.driveDownloadUrl || rec.driveViewUrl) {
+    window.open(rec.driveDownloadUrl || rec.driveViewUrl, '_blank', 'noopener,noreferrer');
+    showToast(`⬇️ เปิดดาวน์โหลดไฟล์ "${rec.fileName}" จาก Google Drive`);
+    return;
+  }
+
+  showToast('⚠️ ไม่พบข้อมูลไฟล์ในเครื่อง กรุณาเชื่อมต่อ Google Apps Script เพื่อดึงจาก Google Drive');
+}
+
+function handleReportFileChange(e) {
+  const errEl = document.getElementById('subFileErr');
+  const metaEl = document.getElementById('subFileMeta');
+  const nameTxt = document.getElementById('subFileNameTxt');
+  errEl.style.display = 'none';
+
+  const file = e.target.files[0];
+  if (!file) {
+    stagedUploadFile = null;
+    metaEl.classList.remove('show');
+    return;
+  }
+
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    errEl.textContent = `❌ ไฟล์ "${file.name}" มีขนาด ${formatBytes(file.size)} ซึ่งเกินกำหนด 5 MB กรุณาเลือกไฟล์ใหม่`;
+    errEl.style.display = 'block';
+    e.target.value = '';
+    stagedUploadFile = null;
+    metaEl.classList.remove('show');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const dataUrl = evt.target.result;
+    const base64 = dataUrl.split(',')[1] || '';
+    stagedUploadFile = {
+      fileName: file.name,
+      fileSize: file.size,
+      mimeType: file.type || 'application/octet-stream',
+      base64: base64,
+      dataUrl: dataUrl
+    };
+    nameTxt.textContent = `📎 ${file.name} (${formatBytes(file.size)})`;
+    metaEl.classList.add('show');
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearSelectedReportFile() {
+  stagedUploadFile = null;
+  document.getElementById('subFileInput').value = '';
+  document.getElementById('subFileMeta').classList.remove('show');
+  document.getElementById('subFileErr').style.display = 'none';
+}
+
+/* ================== 10. WORKGROUP TABLE & SUBMISSION ================== */
+function toggleShowHiddenInWg() {
+  showHiddenInWorkgroup = !showHiddenInWorkgroup;
+  if (['G1', 'G2', 'G3', 'G4'].includes(currentPage)) {
+    renderWorkgroupPage(currentPage);
+  }
+}
+
+function renderWorkgroupPage(gId) {
+  const group = WORKGROUPS.find(g => g.id === gId);
+  if (!group) return;
+  const dists = getVisibleDistricts();
+  const admin = isAdmin();
+
+  const activeReports = getGroupReportsForMonth(gId, currentMonth, false);
+  const hiddenCount = group.reports.length - activeReports.length;
+  const displayReports = (admin && showHiddenInWorkgroup) ? group.reports : activeReports;
+
+  document.getElementById('wgTitle').textContent = `${group.name} (ประจำเดือน${currentMonth})`;
+  document.getElementById('wgSub').textContent =
+    `เดือน${currentMonth} เปิดให้ส่ง ${activeReports.length} หัวข้อ ${hiddenCount > 0 ? `(ซ่อน/ไม่ต้องส่ง ${hiddenCount} หัวข้อ)` : ''} • รองรับอัปโหลดไฟล์ ≤ 5 MB`;
+
+  const ctrlEl = document.getElementById('wgAdminControls');
+  if (ctrlEl) {
+    if (admin) {
+      ctrlEl.innerHTML = `
+        <button class="btn btn-primary btn-sm" onclick="openQuickAddReportModal('${gId}')">➕ เพิ่มหัวข้อรายงานในกลุ่มนี้</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleShowHiddenInWg()">
+          ${showHiddenInWorkgroup ? '🙈 ซ่อนรายการที่งดส่งเดือนนี้' : `👁️ แสดงรายการที่ซ่อนไว้ (${hiddenCount})`}
+        </button>
+      `;
+    } else {
+      ctrlEl.innerHTML = '';
+    }
+  }
+
+  let rows = '';
+  displayReports.forEach(r => {
+    const isHidden = isReportHidden(currentMonth, r.id);
+    dists.forEach((d, dIdx) => {
+      const rec = db[currentMonth][d.id][r.id];
+      const pillCls = isHidden ? 'pill-hide' : (rec.status === 'อนุมัติแล้ว' ? 'pill-ok' : rec.status === 'รอตรวจสอบ' ? 'pill-pend' : rec.status === 'แก้ไข' ? 'pill-rej' : 'pill-none');
+      const statusTxt = isHidden ? '🙈 งดส่งเดือนนี้' : rec.status;
+      const fileCellHtml = buildFileCellHtml(currentMonth, d.id, r.id, rec);
+
+      const adminTopicTools = (admin && dIdx === 0) ? `
+        <div style="margin-top:5px;display:flex;gap:4px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-xs" onclick="toggleReportForMonth('${currentMonth}','${r.id}')" title="ซ่อนหรือเปิดส่งรายงานนี้เฉพาะเดือน${currentMonth}">
+            ${isHidden ? '👁️ เปิดส่งเดือนนี้' : '🙈 ซ่อนเดือนนี้'}
+          </button>
+          <button class="btn btn-ghost btn-xs" onclick="openEditReportModal('${r.id}')">✏️ แก้ไขหัวข้อ</button>
+        </div>
+      ` : '';
+
+      const manualBtns = (admin && !isHidden) ? `
+        <div class="sc-grp" title="ให้คะแนนแมนนวล">
+          <button class="sc-btn ${rec.score === 2 ? 'on-2' : ''}" onclick="setManualScore('${currentMonth}','${d.id}','${r.id}',2)">2</button>
+          <button class="sc-btn ${rec.score === 1 ? 'on-1' : ''}" onclick="setManualScore('${currentMonth}','${d.id}','${r.id}',1)">1</button>
+          <button class="sc-btn ${rec.score === 0 ? 'on-0' : ''}" onclick="setManualScore('${currentMonth}','${d.id}','${r.id}',0)">0</button>
+        </div>
+      ` : '';
+
+      const submitBtnHtml = isHidden
+        ? `<span class="pill pill-hide">ไม่ต้องส่งในเดือน${currentMonth}</span>`
+        : `<button class="btn btn-primary btn-xs" onclick="openSubmitModal('${currentMonth}','${d.id}','${r.id}')">📤 ส่งงาน/แนบไฟล์</button>`;
+
+      rows += `<tr class="${isHidden ? 'row-hidden' : ''}">
+        <td>
+          <b>${r.name}</b>
+          ${adminTopicTools}
+        </td>
+        <td>${d.name}</td>
+        <td class="center"><span class="pill ${pillCls}">${statusTxt}</span></td>
+        <td class="center">${isHidden ? '-' : `<b>${rec.score}</b> / 2`}</td>
+        <td class="center">${fileCellHtml}</td>
+        <td>${rec.sender || '-'}</td>
+        <td class="center">
+          ${submitBtnHtml}
+          ${manualBtns}
+        </td>
+      </tr>`;
+    });
+  });
+
+  document.getElementById('wgTableWrap').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>หัวข้อรายงาน (${group.short})</th>
+          <th>อำเภอ</th>
+          <th class="center">สถานะ</th>
+          <th class="center">คะแนน</th>
+          <th class="center">ไฟล์งาน (Google Drive) / ลิงก์</th>
+          <th>ผู้ส่ง</th>
+          <th class="center">ส่งงาน ${admin ? '/ ให้คะแนนแมนนวล' : ''}</th>
+        </tr>
+      </thead>
+      <tbody>${rows || `<tr><td colspan="7" class="center">ไม่มีหัวข้อรายงานที่ต้องส่งในเดือน${currentMonth}</td></tr>`}</tbody>
+    </table>
+  `;
+}
+
+function openSubmitModal(month, distId, repId) {
+  const dist = DISTRICTS.find(d => d.id === distId);
+  const rep = getAllReportsFlat().find(r => r.id === repId);
+  const rec = db[month][distId][repId];
+
+  stagedUploadFile = null;
+  document.getElementById('subFileInput').value = '';
+  document.getElementById('subFileErr').style.display = 'none';
+
+  if (rec.fileName) {
+    document.getElementById('subFileNameTxt').textContent = `📎 ไฟล์เดิม: ${rec.fileName} (${formatBytes(rec.fileSize)})`;
+    document.getElementById('subFileMeta').classList.add('show');
+  } else {
+    document.getElementById('subFileMeta').classList.remove('show');
+  }
+
+  document.getElementById('subMonth').value = month;
+  document.getElementById('subDistId').value = distId;
+  document.getElementById('subRepId').value = repId;
+  document.getElementById('subDistName').value = `${dist.name} • ${rep.groupShort} (เดือน${month})`;
+  document.getElementById('subRepName').value = rep.name;
+  document.getElementById('subDriveFolderHint').textContent = `จะถูกบันทึกเข้าโฟลเดอร์ Google Drive: "${rep.groupName}"`;
+  document.getElementById('subLink').value = rec.link || '';
+  document.getElementById('subSender').value = rec.sender || currentUser.name;
+  document.getElementById('subNote').value = rec.note || '';
+  document.getElementById('submitModal').classList.add('on');
+}
+
+async function syncRecordToGas(actionType, month, distId, repId, filePayload = null) {
+  if (!gasConfig.url) return null;
+  const dist = DISTRICTS.find(d => d.id === distId);
+  const rep = getAllReportsFlat().find(r => r.id === repId);
+  const rec = db[month][distId][repId];
+
+  const payload = {
+    action: actionType,
+    driveFolderId: gasConfig.driveFolderId || '',
+    record: {
+      month,
+      distId,
+      distName: dist.name,
+      groupId: rep.groupId,
+      groupName: rep.groupName,
+      repId,
+      repName: rep.name,
+      status: rec.status,
+      score: rec.score,
+      sender: rec.sender,
+      link: rec.link,
+      fileName: rec.fileName || '',
+      fileSize: rec.fileSize || 0
+    },
+    filePayload: filePayload
+  };
+
+  try {
+    const res = await fetch(gasConfig.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    fetch(gasConfig.url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    }).catch(() => {});
+    return null;
+  }
+}
+
+async function confirmSubmitReport(e) {
+  e.preventDefault();
+  const m = document.getElementById('subMonth').value;
+  const dId = document.getElementById('subDistId').value;
+  const rId = document.getElementById('subRepId').value;
+  const prevRec = db[m][dId][rId];
+  const now = new Date().toLocaleString('th-TH');
+  const submitBtn = document.getElementById('btnConfirmSubmit');
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = '⏳ กำลังบันทึกและอัปโหลดไฟล์...';
+
+  const newRec = {
+    status: isAdmin() ? 'อนุมัติแล้ว' : 'รอตรวจสอบ',
+    score: isAdmin() ? 2 : 0,
+    link: document.getElementById('subLink').value.trim(),
+    fileName: stagedUploadFile ? stagedUploadFile.fileName : (prevRec.fileName || ''),
+    fileSize: stagedUploadFile ? stagedUploadFile.fileSize : (prevRec.fileSize || 0),
+    mimeType: stagedUploadFile ? stagedUploadFile.mimeType : (prevRec.mimeType || ''),
+    driveViewUrl: prevRec.driveViewUrl || '',
+    driveDownloadUrl: prevRec.driveDownloadUrl || '',
+    sender: document.getElementById('subSender').value.trim(),
+    submittedAt: now,
+    note: document.getElementById('subNote').value.trim()
+  };
+
+  if (stagedUploadFile) {
+    const idbKey = `${m}__${dId}__${rId}`;
+    await saveFileToIDB(idbKey, {
+      fileName: stagedUploadFile.fileName,
+      fileSize: stagedUploadFile.fileSize,
+      mimeType: stagedUploadFile.mimeType,
+      dataUrl: stagedUploadFile.dataUrl
+    });
+  }
+
+  db[m][dId][rId] = newRec;
+  saveDB();
+
+  const gasResult = await syncRecordToGas(
+    'submitReport',
+    m,
+    dId,
+    rId,
+    stagedUploadFile ? {
+      fileName: stagedUploadFile.fileName,
+      fileSize: stagedUploadFile.fileSize,
+      mimeType: stagedUploadFile.mimeType,
+      base64: stagedUploadFile.base64
+    } : null
+  );
+
+  if (gasResult && gasResult.ok && gasResult.fileUrl) {
+    db[m][dId][rId].driveViewUrl = gasResult.fileUrl;
+    db[m][dId][rId].driveDownloadUrl = gasResult.downloadUrl || gasResult.fileUrl;
+    if (!db[m][dId][rId].link) {
+      db[m][dId][rId].link = gasResult.fileUrl;
+    }
+    saveDB();
+  }
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = '📤 ยืนยันการส่งรายงาน';
+  closeModal('submitModal');
+  renderAll();
+  showToast(
+    stagedUploadFile
+      ? `✅ ส่งรายงานพร้อมไฟล์ "${stagedUploadFile.fileName}" เรียบร้อยแล้ว`
+      : `✅ บันทึกการส่งรายงานเรียบร้อยแล้ว`
+  );
+}
+
+/* ================== 11. APPROVAL & MANUAL SCORING PAGE ================== */
+function initFilters() {
+  const mSel = document.getElementById('apFilterMonth');
+  mSel.innerHTML = MONTHS.map(m => `<option value="${m}" ${m === currentMonth ? 'selected' : ''}>${m}</option>`).join('');
+
+  const dSel = document.getElementById('apFilterDist');
+  const dists = getVisibleDistricts();
+  dSel.innerHTML = (isAdmin() ? `<option value="ALL">-- ทุกอำเภอ (8 อำเภอ) --</option>` : '') +
+    dists.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+
+  const lDist = document.getElementById('lineRecDist');
+  if (lDist) {
+    lDist.innerHTML = `<option value="ALL">จังหวัดอุทัยธานี (แจ้งเตือนภาพรวม)</option>` +
+      DISTRICTS.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+  }
+
+  renderApprovalGroupTabs();
+  populateReportDropdown();
+}
+
+function onApprovalMonthChange() {
+  populateReportDropdown();
+  renderApprovalPage();
+}
+
+function renderApprovalGroupTabs() {
+  const tabs = [
+    { id: 'ALL', label: 'ทั้งหมด (4 กลุ่มงาน)' },
+    ...WORKGROUPS.map(g => ({ id: g.id, label: g.short }))
+  ];
+  document.getElementById('approvalGroupTabs').innerHTML = tabs.map(t =>
+    `<button class="stab ${selectedApprovalGroup === t.id ? 'active' : ''}" onclick="selectApprovalGroup('${t.id}')">${t.label}</button>`
+  ).join('');
+}
+
+function selectApprovalGroup(gId) {
+  selectedApprovalGroup = gId;
+  renderApprovalGroupTabs();
+  populateReportDropdown();
+  renderApprovalPage();
+}
+
+function populateReportDropdown() {
+  const rSel = document.getElementById('apFilterReport');
+  if (!rSel) return;
+  const m = document.getElementById('apFilterMonth')?.value || currentMonth;
+  const reports = getAllReportsFlat(m, false).filter(r => selectedApprovalGroup === 'ALL' || r.groupId === selectedApprovalGroup);
+  rSel.innerHTML = `<option value="ALL">-- ทุกหัวข้อที่เปิดส่งในเดือน${m} (${reports.length} งาน) --</option>` +
+    reports.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+}
+
+function setManualScore(month, distId, repId, scoreVal) {
+  if (!isAdmin()) {
+    showToast('⛔ เฉพาะแอดมินจังหวัดเท่านั้นที่สามารถให้คะแนนและอนุมัติได้');
+    return;
+  }
+  const rec = db[month][distId][repId];
+  rec.score = Number(scoreVal);
+  rec.status = scoreVal > 0 ? 'อนุมัติแล้ว' : 'ยังไม่ส่งรายงาน';
+  if (scoreVal > 0 && !rec.submittedAt) {
+    rec.submittedAt = new Date().toLocaleString('th-TH');
+    rec.sender = rec.sender || 'Admin (ให้คะแนนแมนนวล)';
+  }
+  saveDB();
+  syncRecordToGas('manualScore', month, distId, repId);
+  renderAll();
+  showToast(`✅ บันทึกคะแนน ${scoreVal} คะแนน (${rec.status}) เรียบร้อย`);
+}
+
+function renderApprovalPage() {
+  const m = document.getElementById('apFilterMonth')?.value || currentMonth;
+  const rFilter = document.getElementById('apFilterReport')?.value || 'ALL';
+  const dFilter = document.getElementById('apFilterDist')?.value || 'ALL';
+  const sFilter = document.getElementById('apFilterStatus')?.value || 'ALL';
+  const admin = isAdmin();
+
+  const reports = getAllReportsFlat(m, false).filter(r =>
+    (selectedApprovalGroup === 'ALL' || r.groupId === selectedApprovalGroup) &&
+    (rFilter === 'ALL' || r.id === rFilter)
+  );
+  const dists = getVisibleDistricts().filter(d => dFilter === 'ALL' || d.id === dFilter);
+
+  const thDists = dists.map(d => `<th class="center">${d.short}</th>`).join('');
+  let mRows = '';
+  reports.forEach(r => {
+    const cells = dists.map(d => {
+      const rec = db[m][d.id][r.id];
+      if (!admin) {
+        return `<td class="center"><span class="pill ${rec.score > 0 ? 'pill-ok' : 'pill-none'}">${rec.score} คะแนน</span></td>`;
+      }
+      return `<td class="center">
+        <div class="sc-grp">
+          <button class="sc-btn ${rec.score === 2 ? 'on-2' : ''}" onclick="setManualScore('${m}','${d.id}','${r.id}',2)">2</button>
+          <button class="sc-btn ${rec.score === 1 ? 'on-1' : ''}" onclick="setManualScore('${m}','${d.id}','${r.id}',1)">1</button>
+          <button class="sc-btn ${rec.score === 0 ? 'on-0' : ''}" onclick="setManualScore('${m}','${d.id}','${r.id}',0)">0</button>
+        </div>
+      </td>`;
+    }).join('');
+    mRows += `<tr>
+      <td>
+        <span style="font-size:11px;color:var(--blue-600);font-weight:700">[${r.groupShort}]</span>
+        ${admin ? `<button class="btn btn-ghost btn-xs" style="margin-left:6px" onclick="toggleReportForMonth('${m}','${r.id}')" title="ซ่อนงานนี้ในเดือน${m}">🙈 ซ่อนเดือนนี้</button>` : ''}
+        <br><b>${r.name}</b>
+      </td>
+      ${cells}
+    </tr>`;
+  });
+  document.getElementById('approvalMatrixWrap').innerHTML = `
+    <table>
+      <thead><tr><th>หัวข้อรายงานที่เปิดส่ง (เดือน${m})</th>${thDists}</tr></thead>
+      <tbody>${mRows || `<tr><td colspan="${dists.length + 1}" class="center">ไม่มีหัวข้อรายงานที่เปิดส่งตามตัวกรองนี้</td></tr>`}</tbody>
+    </table>
+  `;
+
+  let lRows = '';
+  reports.forEach(r => {
+    dists.forEach(d => {
+      const rec = db[m][d.id][r.id];
+      if (sFilter !== 'ALL' && rec.status !== sFilter) return;
+      const pillCls = rec.status === 'อนุมัติแล้ว' ? 'pill-ok' : rec.status === 'รอตรวจสอบ' ? 'pill-pend' : rec.status === 'แก้ไข' ? 'pill-rej' : 'pill-none';
+      const fileCellHtml = buildFileCellHtml(m, d.id, r.id, rec);
+
+      const actions = admin ? `
+        <button class="btn btn-ok btn-xs" onclick="setManualScore('${m}','${d.id}','${r.id}',2)">✅ อนุมัติ (+2)</button>
+        <button class="btn btn-line btn-xs" onclick="sendSingleLineAlert('${m}','${d.id}','${r.id}')">💬 แจ้ง LINE</button>
+      ` : `<button class="btn btn-primary btn-xs" onclick="openSubmitModal('${m}','${d.id}','${r.id}')">📤 ส่งงาน/แนบไฟล์</button>`;
+
+      lRows += `<tr>
+        <td>${m}</td>
+        <td><b>${d.name}</b></td>
+        <td><small style="color:var(--muted)">${r.groupShort}</small><br><b>${r.name}</b></td>
+        <td class="center"><span class="pill ${pillCls}">${rec.status}</span></td>
+        <td class="center"><b>${rec.score}</b></td>
+        <td class="center">${fileCellHtml}</td>
+        <td>${rec.sender || '-'}</td>
+        <td class="center">${actions}</td>
+      </tr>`;
+    });
+  });
+  document.getElementById('approvalListWrap').innerHTML = `
+    <table>
+      <thead><tr><th>เดือน</th><th>อำเภอ</th><th>หัวข้อรายงาน</th><th class="center">สถานะ</th><th class="center">คะแนน</th><th class="center">ไฟล์แนบ (สำหรับ Admin ดาวน์โหลด)</th><th>ผู้ส่ง</th><th class="center">จัดการ</th></tr></thead>
+      <tbody>${lRows || '<tr><td colspan="8" class="center">ไม่พบรายการตามตัวกรองที่เลือก</td></tr>'}</tbody>
+    </table>
+  `;
+}
+
+function approveAllPendingInFilter() {
+  if (!isAdmin()) return;
+  const m = document.getElementById('apFilterMonth')?.value || currentMonth;
+  let count = 0;
+  DISTRICTS.forEach(d => {
+    getAllReportsFlat(m, false).forEach(r => {
+      if (db[m][d.id][r.id].status === 'รอตรวจสอบ') {
+        db[m][d.id][r.id].status = 'อนุมัติแล้ว';
+        db[m][d.id][r.id].score = 2;
+        count++;
+      }
+    });
+  });
+  saveDB();
+  renderAll();
+  showToast(`✅ อนุมัติรายการที่รอตรวจทั้งหมด ${count} งาน เรียบร้อยแล้ว`);
+}
+
+/* ================== 12. LINE NOTIFICATION (ADMIN ONLY) ================== */
+function addLineRecipient(e) {
+  e.preventDefault();
+  if (!isAdmin()) return;
+  const name = document.getElementById('lineRecName').value.trim();
+  const lineId = document.getElementById('lineRecId').value.trim();
+  const distId = document.getElementById('lineRecDist').value;
+  lineRecipients.push({ id: Date.now().toString(), name, lineId, distId });
+  localStorage.setItem(LINE_REC_KEY, JSON.stringify(lineRecipients));
+  document.getElementById('lineRecName').value = '';
+  document.getElementById('lineRecId').value = '';
+  renderLinePage();
+  showToast('✅ เพิ่มไอดีไลน์สำหรับรับการแจ้งเตือนเรียบร้อยแล้ว');
+}
+
+function removeLineRecipient(id) {
+  if (!isAdmin()) return;
+  lineRecipients = lineRecipients.filter(x => x.id !== id);
+  localStorage.setItem(LINE_REC_KEY, JSON.stringify(lineRecipients));
+  renderLinePage();
+}
+
+function renderLinePage() {
+  if (!isAdmin()) return;
+  const rRows = lineRecipients.map(r => `
+    <tr>
+      <td><b>${r.name}</b><br><small style="color:var(--muted)">ID: ${r.lineId}</small></td>
+      <td>${r.distId === 'ALL' ? 'ทุกอำเภอ (จังหวัด)' : r.distId}</td>
+      <td class="center"><button class="btn btn-danger btn-xs" onclick="removeLineRecipient('${r.id}')">ลบ</button></td>
+    </tr>
+  `).join('');
+  document.getElementById('lineRecipientTable').innerHTML = `
+    <table>
+      <thead><tr><th>ชื่อ / LINE ID</th><th>อำเภอ</th><th class="center">ลบ</th></tr></thead>
+      <tbody>${rRows || '<tr><td colspan="3" class="center">ยังไม่มีรายชื่อไอดีไลน์ (สามารถเพิ่มภายหลังได้)</td></tr>'}</tbody>
+    </table>
+  `;
+
+  let aRows = '';
+  const reports = getAllReportsFlat(currentMonth, false);
+  DISTRICTS.forEach(d => {
+    reports.forEach(r => {
+      const rec = db[currentMonth]?.[d.id]?.[r.id];
+      if (rec?.status === 'อนุมัติแล้ว') {
+        aRows += `<tr>
+          <td><b>${d.short}</b></td>
+          <td>${r.name}</td>
+          <td class="center"><span class="pill pill-ok">+${rec.score} คะแนน</span></td>
+          <td class="center">
+            <button class="btn btn-line btn-xs" onclick="sendSingleLineAlert('${currentMonth}','${d.id}','${r.id}')">📲 แจ้งเตือน LINE</button>
+          </td>
+        </tr>`;
+      }
+    });
+  });
+  document.getElementById('approvedForLineTable').innerHTML = `
+    <table>
+      <thead><tr><th>อำเภอ</th><th>รายงานที่อนุมัติแล้ว (เดือน${currentMonth})</th><th class="center">คะแนน</th><th class="center">ส่งแจ้งเตือน</th></tr></thead>
+      <tbody>${aRows || '<tr><td colspan="4" class="center">ยังไม่มีรายการที่อนุมัติในเดือนนี้</td></tr>'}</tbody>
+    </table>
+  `;
+}
+
+function dispatchLineMessage(messageText) {
+  if (!isAdmin()) {
+    showToast('⛔ เฉพาะแอดมินจังหวัดเท่านั้นที่สามารถส่งแจ้งเตือน LINE ได้');
+    return;
+  }
+  if (gasConfig.url) {
+    fetch(gasConfig.url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'sendLine',
+        message: messageText,
+        token: gasConfig.token,
+        target: gasConfig.target,
+        recipients: lineRecipients
+      })
+    }).catch(() => {});
+  }
+  const shareUrl = 'https://line.me/R/msg/text/?' + encodeURIComponent(messageText);
+  window.open(shareUrl, '_blank', 'noopener,noreferrer');
+  showToast('📲 ส่งข้อความแจ้งเตือนไปยัง LINE เรียบร้อยแล้ว');
+}
+
+function sendSingleLineAlert(month, distId, repId) {
+  const dist = DISTRICTS.find(d => d.id === distId);
+  const rep = getAllReportsFlat().find(r => r.id === repId);
+  const rec = db[month][distId][repId];
+  const fileLine = rec.fileName ? `\nไฟล์แนบ: ${rec.fileName}` : '';
+  const msg = `✅ [CDD Uthai Report : แจ้งผลการอนุมัติรายงาน]\nประจำเดือน: ${month}\nหน่วยงาน: ${dist.name}\nกลุ่มงาน: ${rep.groupShort}\nรายงาน: ${rep.name}${fileLine}\nสถานะ: ${rec.status} (+${rec.score} คะแนน)`;
+  dispatchLineMessage(msg);
+}
+
+function sendMonthlySummaryLine() {
+  const reports = getAllReportsFlat(currentMonth, false);
+  let lines = [`📊 CDD Uthai Report : สรุปคะแนนประจำเดือน${currentMonth}`, `สพจ.อุทัยธานี (เปิดส่ง ${reports.length} งาน = ${reports.length * 2} คะแนน)`];
+  DISTRICTS.forEach(d => {
+    let sc = 0, app = 0;
+    reports.forEach(r => {
+      const rec = db[currentMonth][d.id][r.id];
+      sc += Number(rec.score || 0);
+      if (rec.status === 'อนุมัติแล้ว') app++;
+    });
+    lines.push(`• ${d.short}: ${sc}/${reports.length * 2} คะแนน (${app}/${reports.length} งาน)`);
+  });
+  dispatchLineMessage(lines.join('\n'));
+}
+
+/* ================== 13. EXCEL / GOOGLE SHEETS IMPORT & EXPORT ================== */
+function buildTemplateRows(useCurrentData = false) {
+  const rows = [];
+  const reports = getAllReportsFlat(currentMonth, false);
+  DISTRICTS.forEach(d => {
+    reports.forEach(r => {
+      const rec = useCurrentData ? db[currentMonth][d.id][r.id] : {
+        status: 'ยังไม่ส่งรายงาน', score: 0, fileName: '', driveDownloadUrl: '', link: '', sender: '', submittedAt: '', note: ''
+      };
+      rows.push({
+        'ประจำเดือน': currentMonth,
+        'รหัสอำเภอ': d.id,
+        'อำเภอ': d.name,
+        'รหัสกลุ่มงาน': r.groupId,
+        'กลุ่มงาน': r.groupName,
+        'รหัสรายงาน': r.id,
+        'หัวข้อรายงาน': r.name,
+        'สถานะการส่งงาน': rec.status,
+        'คะแนน': rec.score,
+        'ชื่อไฟล์แนบ': rec.fileName || '',
+        'ลิงก์ดาวน์โหลด Google Drive': rec.driveDownloadUrl || rec.driveViewUrl || '',
+        'ลิงก์เอกสารแนบ': rec.link || '',
+        'ผู้ส่งรายงาน': rec.sender || '',
+        'วันที่ส่ง': rec.submittedAt || '',
+        'หมายเหตุ': rec.note || ''
+      });
+    });
+  });
+  return rows;
+}
+
+function downloadGoogleSheetTemplate() {
+  const rows = buildTemplateRows(false);
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Template_Report');
+  XLSX.writeFile(wb, `CDD_Uthai_Report_แม่แบบรายงาน_${currentMonth}.xlsx`);
+  showToast('📥 ดาวน์โหลดไฟล์แม่แบบสำหรับ Google Sheets / Excel เรียบร้อยแล้ว');
+}
+
+function exportCurrentToExcel() {
+  const rows = buildTemplateRows(true);
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, `รายงาน_${currentMonth}`);
+  XLSX.writeFile(wb, `CDD_Uthai_Report_สรุปรายงานประจำเดือน_${currentMonth}.xlsx`);
+  showToast('📤 ส่งออกข้อมูลเป็นไฟล์ Excel เรียบร้อยแล้ว');
+}
+
+function handleExcelFileSelected(e) {
+  if (!isAdmin()) {
+    showToast('⛔ เฉพาะแอดมินระดับจังหวัดเท่านั้นที่สามารถนำเข้าข้อมูล Excel ได้');
+    return;
+  }
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const data = new Uint8Array(evt.target.result);
+      const wb = XLSX.read(data, { type: 'array' });
+      const firstSheet = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+      let importedCount = 0;
+      const allReps = getAllReportsFlat(null, true);
+
+      rows.forEach(row => {
+        const m = (row['ประจำเดือน'] || currentMonth).toString().trim();
+        if (!db[m]) return;
+        const dCode = (row['รหัสอำเภอ'] || '').toString().trim().toUpperCase();
+        const dName = (row['อำเภอ'] || '').toString().trim();
+        const dist = DISTRICTS.find(d => d.id === dCode || d.name.includes(dName) || (dName && d.short.includes(dName)));
+        if (!dist) return;
+
+        const rCode = (row['รหัสรายงาน'] || '').toString().trim().toUpperCase();
+        const rName = (row['หัวข้อรายงาน'] || '').toString().trim();
+        const rep = allReps.find(r => r.id === rCode || r.name === rName || (rName && r.name.includes(rName)));
+        if (!rep) return;
+
+        let st = (row['สถานะการส่งงาน'] || 'ยังไม่ส่งรายงาน').toString().trim();
+        let sc = row['คะแนน'] !== '' ? Number(row['คะแนน']) : (st === 'อนุมัติแล้ว' ? 2 : 0);
+        if (sc > 0 && st === 'ยังไม่ส่งรายงาน') st = 'อนุมัติแล้ว';
+
+        const dlUrl = (row['ลิงก์ดาวน์โหลด Google Drive'] || '').toString().trim();
+        db[m][dist.id][rep.id] = {
+          status: st,
+          score: sc,
+          fileName: (row['ชื่อไฟล์แนบ'] || '').toString().trim(),
+          fileSize: 0,
+          mimeType: '',
+          driveViewUrl: dlUrl,
+          driveDownloadUrl: dlUrl,
+          link: (row['ลิงก์เอกสารแนบ'] || '').toString().trim(),
+          sender: (row['ผู้ส่งรายงาน'] || '').toString().trim(),
+          submittedAt: (row['วันที่ส่ง'] || '').toString().trim(),
+          note: (row['หมายเหตุ'] || '').toString().trim()
+        };
+        importedCount++;
+      });
+
+      saveDB();
+      renderAll();
+      showToast(`✅ นำเข้าข้อมูลจากไฟล์ Excel สำเร็จจำนวน ${importedCount} รายการ`);
+    } catch (err) {
+      showToast('❌ รูปแบบไฟล์ไม่ถูกต้อง กรุณาใช้ไฟล์แม่แบบของระบบ');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* ================== 14. UTILITIES & SETTINGS ================== */
+function saveGasSettings() {
+  if (!isAdmin()) return;
+  gasConfig = {
+    url: document.getElementById('cfgGasUrl').value.trim(),
+    driveFolderId: document.getElementById('cfgDriveFolderId').value.trim(),
+    token: document.getElementById('cfgLineToken').value.trim(),
+    target: document.getElementById('cfgLineTarget').value.trim()
+  };
+  localStorage.setItem(GAS_CFG_KEY, JSON.stringify(gasConfig));
+  showToast('💾 บันทึกการตั้งค่า Google Apps Script, Google Drive & LINE แล้ว');
+}
+
+function testLineConnection() {
+  dispatchLineMessage('🔔 ทดสอบการแจ้งเตือนจากระบบ CDD Uthai Report กลุ่มงานสารสนเทศการพัฒนาชุมชน สพจ.อุทัยธานี');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('on');
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('btnTheme').textContent = next === 'dark' ? '☀️ โหมดสว่าง' : '🌙 โหมดมืด';
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 3200);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  initMonthBar();
+  const drop = document.getElementById('excelDropZone');
+  if (drop) {
+    drop.addEventListener('dragover', e => { e.preventDefault(); });
+    drop.addEventListener('drop', e => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+      requireAdminAndPin(
+        'ยืนยันรหัสความปลอดภัยแอดมินจังหวัด เพื่อนำเข้าไฟล์ ' + file.name,
+        () => handleExcelFileSelected({ target: { files: [file] } })
+      );
+    });
+  }
+});
+</script>
+</body>
+</html>
